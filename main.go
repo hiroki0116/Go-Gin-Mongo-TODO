@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"golang-nextjs-todo/controllers"
+	"golang-nextjs-todo/services"
 	"log"
 	"net/http"
 
@@ -13,10 +15,13 @@ import (
 )
 
 var (
-	server      *gin.Engine
-	mongoclient *mongo.Client
-	ctx         context.Context
-	err         error
+	server         *gin.Engine
+	mongoclient    *mongo.Client
+	usercollection *mongo.Collection
+	userservice    services.UserService
+	usercontroller controllers.UserController
+	ctx            context.Context
+	err            error
 )
 
 func init() {
@@ -33,6 +38,8 @@ func init() {
 		return
 	}
 	fmt.Println("Connected to MongoDB!!!!")
+	usercontroller = controllers.NewUserContoller(usercollection, ctx)
+	userservice = services.New(usercontroller)
 	server = gin.Default()
 }
 
