@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"golang-nextjs-todo/models"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -30,7 +31,11 @@ func NewUserContoller(usercollection *mongo.Collection, ctx context.Context) *Us
 }
 
 func (uc *UserControllerReceiver) CreateUser(user *models.User) error {
-	return nil
+
+	createdAt := time.Now().Format(time.RFC3339)
+	user.CreatedAt = createdAt
+	_, err := uc.usercollection.InsertOne(uc.ctx, user)
+	return err
 }
 
 func (uc *UserControllerReceiver) GetUserById(id primitive.ObjectID) (*models.User, error) {

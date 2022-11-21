@@ -2,6 +2,7 @@ package services
 
 import (
 	"golang-nextjs-todo/controllers"
+	"golang-nextjs-todo/models"
 	"golang-nextjs-todo/utils"
 	"net/http"
 
@@ -41,7 +42,22 @@ func (us *UserService) GetAllUsers(ctx *gin.Context) {
 }
 
 func (us *UserService) CreateUser(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, gin.H{"message": "success"})
+	var user models.User
+	if err := ctx.ShouldBindJSON(&user); err != nil {
+		res := utils.NewHttpResponse(http.StatusBadRequest, err)
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	err := us.UserController.CreateUser(&user)
+	if err != nil {
+		res := utils.NewHttpResponse(http.StatusBadRequest, err)
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	res := utils.NewHttpResponse(http.StatusCreated, user)
+	ctx.JSON(http.StatusCreated, res)
 }
 
 func (us *UserService) UpdateUser(ctx *gin.Context) {
