@@ -31,7 +31,8 @@ func NewUserContoller(usercollection *mongo.Collection, ctx context.Context) *Us
 }
 
 func (uc *UserControllerReceiver) CreateUser(user *models.User) error {
-
+	// TO DO: 1. Add JWT token
+	// TO DO: 2. Has password
 	createdAt := time.Now().Format(time.RFC3339)
 	user.CreatedAt = createdAt
 	_, err := uc.usercollection.InsertOne(uc.ctx, user)
@@ -55,7 +56,22 @@ func (uc *UserControllerReceiver) GetUserById(id primitive.ObjectID) (*models.Us
 }
 
 func (uc *UserControllerReceiver) GetAllUsers() ([]*models.User, error) {
-	return nil, nil
+	var users []*models.User
+	cursor, err := uc.usercollection.Find(uc.ctx, bson.D{{}})
+	if err != nil {
+		return nil, err
+	}
+
+	for cursor.Next(uc.ctx) {
+		var user *models.User
+		err := cursor.Decode(&user)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	return users, nil
 }
 
 func (uc *UserControllerReceiver) UpdateUser(id primitive.ObjectID) error {
