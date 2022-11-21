@@ -29,8 +29,8 @@ func (us *UserService) GetUserById(ctx *gin.Context) {
 
 	user, err := us.UserController.GetUserById(userId)
 	if err != nil {
-		res := utils.NewHttpResponse(http.StatusInternalServerError, err)
-		ctx.JSON(http.StatusInternalServerError, res)
+		res := utils.NewHttpResponse(http.StatusBadRequest, err)
+		ctx.JSON(http.StatusBadRequest, res)
 	}
 
 	res := utils.NewHttpResponse(http.StatusOK, user)
@@ -38,7 +38,15 @@ func (us *UserService) GetUserById(ctx *gin.Context) {
 }
 
 func (us *UserService) GetAllUsers(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, gin.H{"message": "success"})
+	users, err := us.UserController.GetAllUsers()
+	if err != nil {
+		res := utils.NewHttpResponse(http.StatusBadRequest, err)
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	res := utils.NewHttpResponse(http.StatusOK, users)
+	ctx.JSON(http.StatusOK, res)
 }
 
 func (us *UserService) CreateUser(ctx *gin.Context) {
