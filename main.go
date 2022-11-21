@@ -27,7 +27,8 @@ var (
 
 func init() {
 	ctx = context.TODO()
-	mongoconn := options.Client().ApplyURI("mongodb://localhost:27017")
+	uri := "mongodb+srv://hirokiseino0116:Everythingis6@cluster0.e3ylkdo.mongodb.net/?retryWrites=true&w=majority"
+	mongoconn := options.Client().ApplyURI(uri)
 	mongoclient, err = mongo.Connect(ctx, mongoconn)
 	if err != nil {
 		log.Fatal(err)
@@ -39,6 +40,7 @@ func init() {
 		return
 	}
 	fmt.Println("Connected to MongoDB!!!!")
+	usercollection = mongoclient.Database("golangTodos").Collection("users")
 	usercontroller = controllers.NewUserContoller(usercollection, ctx)
 	userservice = services.New(usercontroller)
 	route = routes.NewRoute(userservice)

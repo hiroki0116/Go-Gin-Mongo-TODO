@@ -3,7 +3,9 @@ package controllers
 import (
 	"context"
 	"golang-nextjs-todo/models"
+	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -29,11 +31,27 @@ func NewUserContoller(usercollection *mongo.Collection, ctx context.Context) *Us
 }
 
 func (uc *UserControllerReceiver) CreateUser(user *models.User) error {
-	return nil
+
+	createdAt := time.Now().Format(time.RFC3339)
+	user.CreatedAt = createdAt
+	_, err := uc.usercollection.InsertOne(uc.ctx, user)
+	return err
 }
 
 func (uc *UserControllerReceiver) GetUserById(id primitive.ObjectID) (*models.User, error) {
-	return nil, nil
+	var user *models.User
+	query := bson.D{
+		bson.E{
+			Key:   "_id",
+			Value: id,
+		},
+	}
+	err := uc.usercollection.FindOne(uc.ctx, query).Decode(&user)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
 
 func (uc *UserControllerReceiver) GetAllUsers() ([]*models.User, error) {
