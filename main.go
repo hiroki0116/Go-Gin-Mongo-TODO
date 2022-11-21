@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 	"golang-nextjs-todo/controllers"
+	"golang-nextjs-todo/routes"
 	"golang-nextjs-todo/services"
 	"log"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -18,8 +18,9 @@ var (
 	server         *gin.Engine
 	mongoclient    *mongo.Client
 	usercollection *mongo.Collection
-	userservice    services.UserService
 	usercontroller controllers.UserController
+	userservice    services.UserService
+	route          routes.UserRoutes
 	ctx            context.Context
 	err            error
 )
@@ -40,17 +41,15 @@ func init() {
 	fmt.Println("Connected to MongoDB!!!!")
 	usercontroller = controllers.NewUserContoller(usercollection, ctx)
 	userservice = services.New(usercontroller)
+	route = routes.NewRoute(userservice)
 	server = gin.Default()
 }
 
 func main() {
 	defer mongoclient.Disconnect(ctx)
+	basepath := server.Group("/api/v1")
 
-	server.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
-	})
+	route.UserRoutes(basepath)
+
 	log.Fatalln(server.Run(":8000"))
-
 }
