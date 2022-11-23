@@ -35,7 +35,9 @@ func (uc *UserControllerReceiver) CreateUser(user *models.User) error {
 	// TO DO: 1. Add JWT token
 	// TO DO: 2. Has password
 	createdAt := time.Now().Format(time.RFC3339)
+	updatedAt := time.Now().Format(time.RFC3339)
 	user.CreatedAt = createdAt
+	user.UpdatedAt = updatedAt
 	_, err := uc.usercollection.InsertOne(uc.ctx, user)
 	return err
 }
@@ -115,5 +117,15 @@ func (uc *UserControllerReceiver) UpdateUser(id primitive.ObjectID, user *models
 }
 
 func (uc *UserControllerReceiver) DeleteUser(id primitive.ObjectID) error {
+	filter := bson.D{
+		bson.E{
+			Key:   "_id",
+			Value: id,
+		},
+	}
+
+	if result, _ := uc.usercollection.DeleteOne(uc.ctx, filter); result.DeletedCount != 1 {
+		return errors.New("no matched document found for user delete")
+	}
 	return nil
 }
