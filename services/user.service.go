@@ -69,9 +69,45 @@ func (us *UserService) CreateUser(ctx *gin.Context) {
 }
 
 func (us *UserService) UpdateUser(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, gin.H{"message": "success"})
+	id := ctx.Param("id")
+	var user models.User
+	userId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		res := utils.NewHttpResponse(http.StatusBadRequest, err)
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	if err := ctx.ShouldBindJSON(&user); err != nil {
+		res := utils.NewHttpResponse(http.StatusBadRequest, err)
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	if err := us.UserController.UpdateUser(userId, &user); err != nil {
+		res := utils.NewHttpResponse(http.StatusBadRequest, err)
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+	res := utils.NewHttpResponse(http.StatusCreated, user)
+	ctx.JSON(http.StatusCreated, res)
 }
 
 func (us *UserService) DeleteUser(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, gin.H{"message": "success"})
+	id := ctx.Param("id")
+	userId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		res := utils.NewHttpResponse(http.StatusBadRequest, err)
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	if err := us.UserController.DeleteUser(userId); err != nil {
+		res := utils.NewHttpResponse(http.StatusBadRequest, err)
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	res := utils.NewHttpResponse(http.StatusOK, "Successfully deleted")
+	ctx.JSON(http.StatusCreated, res)
 }

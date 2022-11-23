@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"errors"
 	"golang-nextjs-todo/models"
 	"time"
 
@@ -14,7 +15,7 @@ type UserController interface {
 	CreateUser(*models.User) error
 	GetUserById(primitive.ObjectID) (*models.User, error)
 	GetAllUsers() ([]*models.User, error)
-	UpdateUser(primitive.ObjectID) error
+	UpdateUser(primitive.ObjectID, *models.User) error
 	DeleteUser(primitive.ObjectID) error
 }
 
@@ -34,7 +35,9 @@ func (uc *UserControllerReceiver) CreateUser(user *models.User) error {
 	// TO DO: 1. Add JWT token
 	// TO DO: 2. Has password
 	createdAt := time.Now().Format(time.RFC3339)
+	updatedAt := time.Now().Format(time.RFC3339)
 	user.CreatedAt = createdAt
+	user.UpdatedAt = updatedAt
 	_, err := uc.usercollection.InsertOne(uc.ctx, user)
 	return err
 }
@@ -74,10 +77,55 @@ func (uc *UserControllerReceiver) GetAllUsers() ([]*models.User, error) {
 	return users, nil
 }
 
-func (uc *UserControllerReceiver) UpdateUser(id primitive.ObjectID) error {
+func (uc *UserControllerReceiver) UpdateUser(id primitive.ObjectID, user *models.User) error {
+	filter := bson.D{
+		bson.E{
+			Key:   "_id",
+			Value: id,
+		},
+	}
+
+	update := bson.D{
+		bson.E{
+			Key: "$set",
+			Value: bson.D{
+				bson.E{
+					Key:   "first_name",
+					Value: user.FirstName,
+				},
+				bson.E{
+					Key:   "last_name",
+					Value: user.LastName,
+				},
+				bson.E{
+					Key:   "email",
+					Value: user.Email,
+				},
+				bson.E{
+					Key:   "updated_at",
+					Value: time.Now().Format(time.RFC3339),
+				},
+			},
+		},
+	}
+
+	if result, _ := uc.usercollection.UpdateOne(uc.ctx, filter, update); result.MatchedCount != 1 {
+		return errors.New("failed to update user. User not found")
+	}
+
 	return nil
 }
 
 func (uc *UserControllerReceiver) DeleteUser(id primitive.ObjectID) error {
+	filter := bson.D{
+		bson.E{
+			Key:   "_id",
+			Value: id,
+		},
+	}
+
+	if result, _ := uc.usercollection.DeleteOne(uc.ctx, filter); result.DeletedCount != 1 {
+		return errors.New("no matched document found for user delete")
+	}
 	return nil
 }
