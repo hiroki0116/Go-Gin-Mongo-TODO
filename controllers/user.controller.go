@@ -24,7 +24,7 @@ type UserControllerReceiver struct {
 	ctx            context.Context
 }
 
-func NewUserContoller(usercollection *mongo.Collection, ctx context.Context) *UserControllerReceiver {
+func NewUserController(usercollection *mongo.Collection, ctx context.Context) *UserControllerReceiver {
 	return &UserControllerReceiver{
 		usercollection: usercollection,
 		ctx:            ctx,

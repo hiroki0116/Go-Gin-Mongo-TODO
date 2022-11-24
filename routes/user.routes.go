@@ -10,7 +10,7 @@ type UserRoutes struct {
 	UserService services.UserService
 }
 
-func NewRoute(userservice services.UserService) UserRoutes {
+func NewUserRoute(userservice services.UserService) UserRoutes {
 	return UserRoutes{
 		UserService: userservice,
 	}

@@ -14,7 +14,7 @@ type UserService struct {
 	UserController controllers.UserController
 }
 
-func New(usercontroller controllers.UserController) UserService {
+func NewUser(usercontroller controllers.UserController) UserService {
 	return UserService{
 		UserController: usercontroller,
 	}
