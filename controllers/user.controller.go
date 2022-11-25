@@ -3,7 +3,9 @@ package controllers
 import (
 	"context"
 	"errors"
+	"fmt"
 	"golang-nextjs-todo/models"
+	"strings"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -14,6 +16,7 @@ import (
 type UserController interface {
 	CreateUser(*models.User) error
 	GetUserById(primitive.ObjectID) (*models.User, error)
+	GetUserByEmail(email string) (*models.User, error)
 	GetAllUsers() ([]*models.User, error)
 	UpdateUser(primitive.ObjectID, *models.User) error
 	DeleteUser(primitive.ObjectID) error
@@ -32,8 +35,6 @@ func NewUserController(usercollection *mongo.Collection, ctx context.Context) *U
 }
 
 func (uc *UserControllerReceiver) CreateUser(user *models.User) error {
-	// TO DO: 1. Add JWT token
-	// TO DO: 2. Has password
 	createdAt := time.Now().Format(time.RFC3339)
 	updatedAt := time.Now().Format(time.RFC3339)
 	user.CreatedAt = createdAt
@@ -48,6 +49,22 @@ func (uc *UserControllerReceiver) GetUserById(id primitive.ObjectID) (*models.Us
 		bson.E{
 			Key:   "_id",
 			Value: id,
+		},
+	}
+	err := uc.usercollection.FindOne(uc.ctx, query).Decode(&user)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (uc *UserControllerReceiver) GetUserByEmail(email string) (*models.User, error) {
+	var user *models.User
+	query := bson.D{
+		bson.E{
+			Key:   "email",
+			Value: fmt.Sprint(strings.TrimSpace(email)),
 		},
 	}
 	err := uc.usercollection.FindOne(uc.ctx, query).Decode(&user)

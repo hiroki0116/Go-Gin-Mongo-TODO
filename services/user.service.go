@@ -5,9 +5,13 @@ import (
 	"golang-nextjs-todo/models"
 	"golang-nextjs-todo/utils"
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserService struct {
@@ -49,7 +53,7 @@ func (us *UserService) GetAllUsers(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, res)
 }
 
-func (us *UserService) CreateUser(ctx *gin.Context) {
+func (us *UserService) SignUp(ctx *gin.Context) {
 	var user models.User
 	if err := ctx.ShouldBindJSON(&user); err != nil {
 		res := utils.NewHttpResponse(http.StatusBadRequest, err)
@@ -57,7 +61,11 @@ func (us *UserService) CreateUser(ctx *gin.Context) {
 		return
 	}
 
-	err := us.UserController.CreateUser(&user)
+	// Hash password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
+	user.Password = string(hashedPassword)
+	
+	err = us.UserController.CreateUser(&user)
 	if err != nil {
 		res := utils.NewHttpResponse(http.StatusBadRequest, err)
 		ctx.JSON(http.StatusBadRequest, res)
@@ -66,6 +74,55 @@ func (us *UserService) CreateUser(ctx *gin.Context) {
 
 	res := utils.NewHttpResponse(http.StatusCreated, user)
 	ctx.JSON(http.StatusCreated, res)
+}
+
+func (us *UserService) Login(ctx *gin.Context) {
+
+	var body struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		res := utils.NewHttpResponse(http.StatusBadRequest, err)
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+	// Find user by email
+	user, err := us.UserController.GetUserByEmail(body.Email)
+	if err != nil {
+		res := utils.NewHttpResponse(http.StatusBadRequest, err)
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+	// Compare password and hash
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password))
+	if err != nil {
+		res := utils.NewHttpResponse(http.StatusBadRequest, err)
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	// Generate jwt token
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"sub": user.ID,
+		"exp": time.Now().Add(time.Hour * 24 * 30).Unix(),
+	})
+
+	// Sign and get the complete encoded token as a string using the secret
+	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET")))
+	if err != nil {
+		res := utils.NewHttpResponse(http.StatusBadRequest, err)
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	ctx.SetSameSite(http.SameSiteLaxMode)
+	// Set it in cookie
+	ctx.SetCookie("Authorization", tokenString, 3600*24*30, "", "", false, true)
+	// Return response
+	res := utils.NewHttpResponse(http.StatusOK, "Login successful")
+	ctx.JSON(http.StatusOK, res)
 }
 
 func (us *UserService) UpdateUser(ctx *gin.Context) {
