@@ -10,7 +10,7 @@ type UserRoutes struct {
 	UserService services.UserService
 }
 
-func NewRoute(userservice services.UserService) UserRoutes {
+func NewUserRoute(userservice services.UserService) UserRoutes {
 	return UserRoutes{
 		UserService: userservice,
 	}
@@ -18,7 +18,8 @@ func NewRoute(userservice services.UserService) UserRoutes {
 
 func (ur *UserRoutes) UserRoutes(rg *gin.RouterGroup) {
 	userroute := rg.Group("/users")
-	userroute.POST("/", ur.UserService.CreateUser)
+	userroute.POST("/signup", ur.UserService.SignUp)
+	userroute.POST("/login", ur.UserService.Login)
 	userroute.GET("/:id", ur.UserService.GetUserById)
 	userroute.GET("/", ur.UserService.GetAllUsers)
 	userroute.PATCH("/:id", ur.UserService.UpdateUser)
