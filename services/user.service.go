@@ -28,7 +28,9 @@ func (us *UserService) GetUserById(ctx *gin.Context) {
 	id := ctx.Param("id")
 	userId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		panic(err)
+		res := utils.NewHttpResponse(http.StatusBadRequest, err)
+		ctx.JSON(http.StatusBadRequest, res)
+		return
 	}
 
 	user, err := us.UserController.GetUserById(userId)
