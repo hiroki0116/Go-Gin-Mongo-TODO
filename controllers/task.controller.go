@@ -11,9 +11,9 @@ import (
 )
 
 type TaskController interface {
-	GetTaskById(primitive.ObjectID) (*models.Task, error)
-	GetAllTasks() ([]*models.Task, error)
-	CreateTask(*models.Task) error
+	GetTaskById(primitive.ObjectID, primitive.ObjectID) (*models.Task, error)
+	GetAllTasks(primitive.ObjectID) ([]*models.Task, error)
+	CreateTask(*models.Task, primitive.ObjectID) error
 	UpdateTask(primitive.ObjectID, *models.Task) error
 	DeleteTask(primitive.ObjectID) error
 }
@@ -30,12 +30,16 @@ func NewTaskController(taskcollection *mongo.Collection, ctx context.Context) *T
 	}
 }
 
-func (tc *TaskControllerReceiver) GetTaskById(id primitive.ObjectID) (*models.Task, error) {
+func (tc *TaskControllerReceiver) GetTaskById(id, userId primitive.ObjectID) (*models.Task, error) {
 	var task *models.Task
 	query := bson.D{
 		bson.E{
 			Key:   "_id",
 			Value: id,
+		},
+		bson.E{
+			Key:   "user_id",
+			Value: userId,
 		},
 	}
 	if err := tc.taskcollection.FindOne(tc.ctx, query).Decode(&task); err != nil {
@@ -45,9 +49,14 @@ func (tc *TaskControllerReceiver) GetTaskById(id primitive.ObjectID) (*models.Ta
 	return task, nil
 }
 
-func (tc *TaskControllerReceiver) GetAllTasks() ([]*models.Task, error) {
+func (tc *TaskControllerReceiver) GetAllTasks(userId primitive.ObjectID) ([]*models.Task, error) {
 	var tasks []*models.Task
-	query := bson.D{}
+	query := bson.D{
+		bson.E{
+			Key:   "user_id",
+			Value: userId,
+		},
+	}
 	cursor, err := tc.taskcollection.Find(tc.ctx, query)
 	if err != nil {
 		return nil, err
@@ -62,12 +71,13 @@ func (tc *TaskControllerReceiver) GetAllTasks() ([]*models.Task, error) {
 	return tasks, nil
 }
 
-func (tc *TaskControllerReceiver) CreateTask(task *models.Task) error {
+func (tc *TaskControllerReceiver) CreateTask(task *models.Task, userId primitive.ObjectID) error {
 	createdAt := time.Now().Format(time.RFC3339)
 	updatedAt := time.Now().Format(time.RFC3339)
 	task.Completed = false
 	task.CreatedAt = createdAt
 	task.UpdatedAt = updatedAt
+	task.UserID = userId
 	_, err := tc.taskcollection.InsertOne(tc.ctx, task)
 	return err
 }
