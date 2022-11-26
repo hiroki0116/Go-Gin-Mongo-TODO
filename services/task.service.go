@@ -29,7 +29,9 @@ func (ts *TaskService) GetTaskById(ctx *gin.Context) {
 		return
 	}
 
-	task, err := ts.TaskController.GetTaskById(taskId)
+	userId := utils.FetchUserFromCtx(ctx)
+
+	task, err := ts.TaskController.GetTaskById(taskId, userId)
 	if err != nil {
 		res := utils.NewHttpResponse(http.StatusBadRequest, err)
 		ctx.JSON(http.StatusBadRequest, res)
@@ -40,7 +42,8 @@ func (ts *TaskService) GetTaskById(ctx *gin.Context) {
 }
 
 func (ts *TaskService) GetAllTasks(ctx *gin.Context) {
-	tasks, err := ts.TaskController.GetAllTasks()
+	userId := utils.FetchUserFromCtx(ctx)
+	tasks, err := ts.TaskController.GetAllTasks(userId)
 	if err != nil {
 		res := utils.NewHttpResponse(http.StatusBadRequest, err)
 		ctx.JSON(http.StatusBadRequest, res)
@@ -51,13 +54,14 @@ func (ts *TaskService) GetAllTasks(ctx *gin.Context) {
 }
 
 func (ts *TaskService) CreateTask(ctx *gin.Context) {
+	userId := utils.FetchUserFromCtx(ctx)
 	var task models.Task
 	if err := ctx.ShouldBindJSON(&task); err != nil {
 		res := utils.NewHttpResponse(http.StatusBadRequest, err)
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
-	if err := ts.TaskController.CreateTask(&task); err != nil {
+	if err := ts.TaskController.CreateTask(&task, userId); err != nil {
 		res := utils.NewHttpResponse(http.StatusBadRequest, err)
 		ctx.JSON(http.StatusBadRequest, res)
 		return

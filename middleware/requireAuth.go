@@ -47,7 +47,6 @@ func (ra *RequireAuth) SetJWT(ctx *gin.Context) {
 			return
 		}
 
-		// userId := claims["sub"]
 		userId, err := primitive.ObjectIDFromHex(claims["sub"].(string))
 		if err != nil {
 			res := utils.NewHttpResponse(http.StatusInternalServerError, err)
@@ -61,7 +60,8 @@ func (ra *RequireAuth) SetJWT(ctx *gin.Context) {
 			return
 		}
 
-		ctx.Set("user", user)
+		ctx.Set("id", user.ID)
+		ctx.Set("email", user.Email)
 
 		ctx.Next()
 	} else {
