@@ -60,7 +60,7 @@ func init() {
 	requireauth = middleware.NewRequireAuth(usercontroller)
 	// routes
 	userroute = routes.NewUserRoute(userservice, requireauth)
-	taskroute = routes.NewTaskRoute(taskservice)
+	taskroute = routes.NewTaskRoute(taskservice, requireauth)
 	// server
 	server = gin.Default()
 }

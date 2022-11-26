@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"golang-nextjs-todo/middleware"
 	"golang-nextjs-todo/services"
 
 	"github.com/gin-gonic/gin"
@@ -8,19 +9,21 @@ import (
 
 type TaskRoutes struct {
 	TaskService services.TaskService
+	RequireAuth middleware.RequireAuth
 }
 
-func NewTaskRoute(taskservice services.TaskService) TaskRoutes {
+func NewTaskRoute(taskservice services.TaskService, requireauth middleware.RequireAuth) TaskRoutes {
 	return TaskRoutes{
 		TaskService: taskservice,
+		RequireAuth: requireauth,
 	}
 }
 
 func (tr *TaskRoutes) TaskRoutes(rg *gin.RouterGroup) {
 	userroute := rg.Group("/tasks")
-	userroute.POST("/", tr.TaskService.CreateTask)
-	userroute.GET("/:id", tr.TaskService.GetTaskById)
-	userroute.GET("/", tr.TaskService.GetAllTasks)
-	userroute.PATCH("/:id", tr.TaskService.UpdateTask)
-	userroute.DELETE("/:id", tr.TaskService.DeleteTask)
+	userroute.POST("/", tr.RequireAuth.SetJWT, tr.TaskService.CreateTask)
+	userroute.GET("/:id", tr.RequireAuth.SetJWT, tr.TaskService.GetTaskById)
+	userroute.GET("/", tr.RequireAuth.SetJWT, tr.TaskService.GetAllTasks)
+	userroute.PATCH("/:id", tr.RequireAuth.SetJWT, tr.TaskService.UpdateTask)
+	userroute.DELETE("/:id", tr.RequireAuth.SetJWT, tr.TaskService.DeleteTask)
 }
