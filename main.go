@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"golang-nextjs-todo/controllers"
+	"golang-nextjs-todo/middleware"
 	"golang-nextjs-todo/routes"
 	"golang-nextjs-todo/services"
 	"log"
@@ -23,6 +24,7 @@ var (
 	taskcontroller controllers.TaskController
 	userservice    services.UserService
 	taskservice    services.TaskService
+	requireauth    middleware.RequireAuth
 	userroute      routes.UserRoutes
 	taskroute      routes.TaskRoutes
 	ctx            context.Context
@@ -54,9 +56,11 @@ func init() {
 	// services layer
 	userservice = services.NewUser(usercontroller)
 	taskservice = services.NewTask(taskcontroller)
+	// middelware
+	requireauth = middleware.NewRequireAuth(usercontroller)
 	// routes
-	userroute = routes.NewUserRoute(userservice)
-	taskroute = routes.NewTaskRoute(taskservice)
+	userroute = routes.NewUserRoute(userservice, requireauth)
+	taskroute = routes.NewTaskRoute(taskservice, requireauth)
 	// server
 	server = gin.Default()
 }
