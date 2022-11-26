@@ -64,7 +64,7 @@ func (us *UserService) SignUp(ctx *gin.Context) {
 	// Hash password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
 	user.Password = string(hashedPassword)
-	
+
 	err = us.UserController.CreateUser(&user)
 	if err != nil {
 		res := utils.NewHttpResponse(http.StatusBadRequest, err)
@@ -110,7 +110,7 @@ func (us *UserService) Login(ctx *gin.Context) {
 	})
 
 	// Sign and get the complete encoded token as a string using the secret
-	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET")))
+	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 	if err != nil {
 		res := utils.NewHttpResponse(http.StatusBadRequest, err)
 		ctx.JSON(http.StatusBadRequest, res)
