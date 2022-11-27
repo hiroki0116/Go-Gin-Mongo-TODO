@@ -65,15 +65,40 @@ func (us *UserService) SignUp(ctx *gin.Context) {
 
 	// Hash password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
-	user.Password = string(hashedPassword)
+	if err != nil {
+		res := utils.NewHttpResponse(http.StatusInternalServerError, err)
+		ctx.JSON(http.StatusInternalServerError, res)
+		return
+	}
 
-	err = us.UserController.CreateUser(&user)
+	userId, err := us.UserController.CreateUser(&user)
 	if err != nil {
 		res := utils.NewHttpResponse(http.StatusBadRequest, err)
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
 
+	// Generate jwt token
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"sub": userId,
+		"exp": time.Now().Add(time.Hour * 24 * 30).Unix(),
+	})
+
+	// Sign and get the complete encoded token as a string using the secret
+	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+	if err != nil {
+		res := utils.NewHttpResponse(http.StatusBadRequest, err)
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	// Allow most cross-domain cookie-sharing
+	ctx.SetSameSite(http.SameSiteLaxMode)
+	// Set it in cookie
+	ctx.SetCookie("Authorization", tokenString, 3600*24*30, "", "", false, true)
+
+	user.ID = userId
+	user.Password = string(hashedPassword)
 	res := utils.NewHttpResponse(http.StatusCreated, user)
 	ctx.JSON(http.StatusCreated, res)
 }
