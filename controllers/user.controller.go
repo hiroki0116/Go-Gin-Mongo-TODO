@@ -14,7 +14,7 @@ import (
 )
 
 type UserController interface {
-	CreateUser(*models.User) error
+	CreateUser(*models.User) (primitive.ObjectID, error)
 	GetUserById(primitive.ObjectID) (*models.User, error)
 	GetUserByEmail(email string) (*models.User, error)
 	GetAllUsers() ([]*models.User, error)
@@ -34,13 +34,17 @@ func NewUserController(usercollection *mongo.Collection, ctx context.Context) *U
 	}
 }
 
-func (uc *UserControllerReceiver) CreateUser(user *models.User) error {
+func (uc *UserControllerReceiver) CreateUser(user *models.User) (primitive.ObjectID, error) {
 	createdAt := time.Now().Format(time.RFC3339)
 	updatedAt := time.Now().Format(time.RFC3339)
 	user.CreatedAt = createdAt
 	user.UpdatedAt = updatedAt
-	_, err := uc.usercollection.InsertOne(uc.ctx, user)
-	return err
+	result, err := uc.usercollection.InsertOne(uc.ctx, user)
+	oid, ok := result.InsertedID.(primitive.ObjectID)
+	if !ok {
+		return primitive.NilObjectID, errors.New("failed to fetch user id")
+	}
+	return oid, err
 }
 
 func (uc *UserControllerReceiver) GetUserById(id primitive.ObjectID) (*models.User, error) {
