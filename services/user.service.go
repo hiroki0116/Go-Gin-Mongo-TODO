@@ -71,6 +71,13 @@ func (us *UserService) SignUp(ctx *gin.Context) {
 		return
 	}
 
+	// check existing user
+	if _, err := us.UserController.GetUserByEmail(user.Email); err == nil {
+		res := utils.NewHttpResponse(http.StatusBadRequest, "User already exists")
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
 	userId, err := us.UserController.CreateUser(&user)
 	if err != nil {
 		res := utils.NewHttpResponse(http.StatusBadRequest, err)
@@ -148,7 +155,7 @@ func (us *UserService) Login(ctx *gin.Context) {
 	// Set it in cookie
 	ctx.SetCookie("Authorization", tokenString, 3600*24*30, "", "", false, true)
 	// Return response
-	res := utils.NewHttpResponse(http.StatusOK, "Login successful")
+	res := utils.NewHttpResponse(http.StatusOK, user)
 	ctx.JSON(http.StatusOK, res)
 }
 
