@@ -100,9 +100,9 @@ func (us *UserService) SignUp(ctx *gin.Context) {
 	}
 
 	// Allow most cross-domain cookie-sharing
-	ctx.SetSameSite(http.SameSiteLaxMode)
+	ctx.SetSameSite(http.SameSiteNoneMode)
 	// Set it in cookie
-	ctx.SetCookie("Authorization", tokenString, 3600*24*30, "", "", false, true)
+	ctx.SetCookie("token", tokenString, 3600*24*30, "/", "*", false, false)
 
 	user.ID = userId
 	user.Password = string(hashedPassword)
@@ -153,9 +153,18 @@ func (us *UserService) Login(ctx *gin.Context) {
 
 	ctx.SetSameSite(http.SameSiteLaxMode)
 	// Set it in cookie
-	ctx.SetCookie("Authorization", tokenString, 3600*24*30, "", "", false, true)
+	ctx.SetCookie("token", tokenString, 3600*24*30, "/", "*", false, false)
 	// Return response
-	res := utils.NewHttpResponse(http.StatusOK, user)
+	resUser := models.User{
+		ID:        user.ID,
+		Email:     user.Email,
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+		Token:     tokenString,
+	}
+	res := utils.NewHttpResponse(http.StatusOK, resUser)
 	ctx.JSON(http.StatusOK, res)
 }
 
