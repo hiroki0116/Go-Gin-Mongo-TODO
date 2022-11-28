@@ -68,7 +68,7 @@ func init() {
 	server.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"POST, GET, OPTIONS, PUT, DELETE"},
-		AllowHeaders:     []string{"Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, X-Max,Set-Cookie"},
+		AllowHeaders:     []string{"Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, X-Max,Set-Cookie"},
 		ExposeHeaders:    []string{"Content-Length,Set-Cookie"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,

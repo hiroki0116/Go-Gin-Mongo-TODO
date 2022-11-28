@@ -24,7 +24,7 @@ func NewRequireAuth(usercontroller controllers.UserController) RequireAuth {
 }
 
 func (ra *RequireAuth) SetJWT(ctx *gin.Context) {
-	tokenString, err := ctx.Cookie("Authorization")
+	tokenString, err := ctx.Cookie("token")
 	if err != nil {
 		res := utils.NewHttpResponse(http.StatusUnauthorized, err)
 		ctx.AbortWithStatusJSON(http.StatusUnauthorized, res)
