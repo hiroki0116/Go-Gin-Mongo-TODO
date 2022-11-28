@@ -71,6 +71,13 @@ func (us *UserService) SignUp(ctx *gin.Context) {
 		return
 	}
 
+	// check existing user
+	if _, err := us.UserController.GetUserByEmail(user.Email); err == nil {
+		res := utils.NewHttpResponse(http.StatusBadRequest, "User already exists")
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
 	userId, err := us.UserController.CreateUser(&user)
 	if err != nil {
 		res := utils.NewHttpResponse(http.StatusBadRequest, err)
@@ -93,9 +100,9 @@ func (us *UserService) SignUp(ctx *gin.Context) {
 	}
 
 	// Allow most cross-domain cookie-sharing
-	ctx.SetSameSite(http.SameSiteLaxMode)
+	ctx.SetSameSite(http.SameSiteNoneMode)
 	// Set it in cookie
-	ctx.SetCookie("Authorization", tokenString, 3600*24*30, "", "", false, true)
+	ctx.SetCookie("token", tokenString, 3600*24*30, "/", "*", false, false)
 
 	user.ID = userId
 	user.Password = string(hashedPassword)
@@ -146,9 +153,18 @@ func (us *UserService) Login(ctx *gin.Context) {
 
 	ctx.SetSameSite(http.SameSiteLaxMode)
 	// Set it in cookie
-	ctx.SetCookie("Authorization", tokenString, 3600*24*30, "", "", false, true)
+	ctx.SetCookie("token", tokenString, 3600*24*30, "/", "*", false, false)
 	// Return response
-	res := utils.NewHttpResponse(http.StatusOK, "Login successful")
+	resUser := models.User{
+		ID:        user.ID,
+		Email:     user.Email,
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+		Token:     tokenString,
+	}
+	res := utils.NewHttpResponse(http.StatusOK, resUser)
 	ctx.JSON(http.StatusOK, res)
 }
 

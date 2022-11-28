@@ -8,7 +8,9 @@ import (
 	"golang-nextjs-todo/routes"
 	"golang-nextjs-todo/services"
 	"log"
+	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -63,6 +65,14 @@ func init() {
 	taskroute = routes.NewTaskRoute(taskservice, requireauth)
 	// server
 	server = gin.Default()
+	server.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"POST, GET, OPTIONS, PUT, DELETE"},
+		AllowHeaders:     []string{"Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, X-Max,Set-Cookie"},
+		ExposeHeaders:    []string{"Content-Length,Set-Cookie"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 }
 
 func main() {
