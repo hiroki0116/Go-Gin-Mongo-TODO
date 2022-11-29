@@ -64,12 +64,13 @@ func (us *UserService) SignUp(ctx *gin.Context) {
 	}
 
 	// Hash password
-	_, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
+	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
 	if err != nil {
 		res := utils.NewHttpResponse(http.StatusInternalServerError, err)
 		ctx.JSON(http.StatusInternalServerError, res)
 		return
 	}
+	user.Password = string(hash)
 
 	// check existing user
 	if _, err := us.UserController.GetUserByEmail(user.Email); err == nil {

@@ -66,8 +66,10 @@ func (ts *TaskService) CreateTask(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
-
-	res := utils.NewHttpResponse(http.StatusOK, "Successfully created task")
+	type response struct {
+		success bool
+	}
+	res := utils.NewHttpResponse(http.StatusOK, response{success: true})
 	ctx.JSON(http.StatusCreated, res)
 }
 
