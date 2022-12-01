@@ -6,6 +6,7 @@ import (
 	"golang-nextjs-todo/utils"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -24,12 +25,14 @@ func NewRequireAuth(usercontroller controllers.UserController) RequireAuth {
 }
 
 func (ra *RequireAuth) SetJWT(ctx *gin.Context) {
-	tokenString, err := ctx.Cookie("token")
-	if err != nil {
-		res := utils.NewHttpResponse(http.StatusUnauthorized, err)
+	auth := ctx.GetHeader("Authorization")
+	if auth == "" {
+		res := utils.NewHttpResponse(http.StatusUnauthorized, "Invalid authorization token provided...")
 		ctx.AbortWithStatusJSON(http.StatusUnauthorized, res)
 		return
 	}
+
+	tokenString := strings.TrimPrefix(auth, "Bearer ")
 
 	// Decode and validate the token
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
