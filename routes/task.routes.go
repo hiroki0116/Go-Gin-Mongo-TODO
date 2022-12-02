@@ -24,6 +24,6 @@ func (tr *TaskRoutes) TaskRoutes(rg *gin.RouterGroup) {
 	userroute.POST("/", tr.RequireAuth.SetJWT, tr.TaskService.CreateTask)
 	userroute.GET("/:id", tr.RequireAuth.SetJWT, tr.TaskService.GetTaskById)
 	userroute.GET("/", tr.RequireAuth.SetJWT, tr.TaskService.GetAllTasks)
-	userroute.PATCH("/:id", tr.RequireAuth.SetJWT, tr.TaskService.UpdateTask)
+	userroute.PUT("/:id", tr.RequireAuth.SetJWT, tr.TaskService.UpdateTask)
 	userroute.DELETE("/:id", tr.RequireAuth.SetJWT, tr.TaskService.DeleteTask)
 }
