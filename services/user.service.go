@@ -64,12 +64,13 @@ func (us *UserService) SignUp(ctx *gin.Context) {
 	}
 
 	// Hash password
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
+	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
 	if err != nil {
 		res := utils.NewHttpResponse(http.StatusInternalServerError, err)
 		ctx.JSON(http.StatusInternalServerError, res)
 		return
 	}
+	user.Password = string(hash)
 
 	// check existing user
 	if _, err := us.UserController.GetUserByEmail(user.Email); err == nil {
@@ -103,10 +104,19 @@ func (us *UserService) SignUp(ctx *gin.Context) {
 	ctx.SetSameSite(http.SameSiteNoneMode)
 	// Set it in cookie
 	ctx.SetCookie("token", tokenString, 3600*24*30, "/", "*", false, false)
+	// Return response
+	resUser := models.User{
+		ID:        userId,
+		Email:     user.Email,
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+		Token:     tokenString,
+	}
 
-	user.ID = userId
-	user.Password = string(hashedPassword)
-	res := utils.NewHttpResponse(http.StatusCreated, user)
+	// Return response
+	res := utils.NewHttpResponse(http.StatusCreated, resUser)
 	ctx.JSON(http.StatusCreated, res)
 }
 

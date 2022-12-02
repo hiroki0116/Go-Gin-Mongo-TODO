@@ -8,10 +8,12 @@ import (
 	"golang-nextjs-todo/routes"
 	"golang-nextjs-todo/services"
 	"log"
+	"os"
 	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -35,9 +37,12 @@ var (
 
 func init() {
 	ctx = context.TODO()
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatalf("Some error occured. Err: %s", err)
+	}
 	// database connection
-	uri := "mongodb+srv://hirokiseino0116:Everythingis6@cluster0.e3ylkdo.mongodb.net/?retryWrites=true&w=majority"
-	mongoconn := options.Client().ApplyURI(uri)
+	mongoconn := options.Client().ApplyURI(string(os.Getenv("MONGO_URI")))
 	mongoclient, err = mongo.Connect(ctx, mongoconn)
 	if err != nil {
 		log.Fatal(err)
@@ -68,8 +73,8 @@ func init() {
 	server.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"POST, GET, OPTIONS, PUT, DELETE"},
-		AllowHeaders:     []string{"Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, X-Max,Set-Cookie"},
-		ExposeHeaders:    []string{"Content-Length,Set-Cookie"},
+		AllowHeaders:     []string{"Origin, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, X-Max,Set-Cookie"},
+		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
