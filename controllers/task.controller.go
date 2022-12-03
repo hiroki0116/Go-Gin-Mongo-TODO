@@ -83,21 +83,33 @@ func (tc *TaskControllerReceiver) CreateTask(task *models.Task, userId primitive
 }
 
 func (tc *TaskControllerReceiver) UpdateTask(id primitive.ObjectID, task *models.Task) error {
-	updatedAt := time.Now().Format(time.RFC3339)
-	task.UpdatedAt = updatedAt
-	query := bson.D{
+	filter := bson.D{
 		bson.E{
 			Key:   "_id",
 			Value: id,
 		},
 	}
+
 	update := bson.D{
 		bson.E{
-			Key:   "$set",
-			Value: task,
+			Key: "$set",
+			Value: bson.D{
+				bson.E{
+					Key:   "title",
+					Value: task.Title,
+				},
+				bson.E{
+					Key:   "completed",
+					Value: task.Completed,
+				},
+				bson.E{
+					Key:   "completed_date",
+					Value: time.Now().Format(time.RFC3339),
+				},
+			},
 		},
 	}
-	_, err := tc.taskcollection.UpdateOne(tc.ctx, query, update)
+	_, err := tc.taskcollection.UpdateOne(tc.ctx, filter, update)
 	return err
 }
 
