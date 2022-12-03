@@ -2,26 +2,22 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"golang-nextjs-todo/controllers"
+	"golang-nextjs-todo/db"
 	"golang-nextjs-todo/middleware"
 	"golang-nextjs-todo/routes"
 	"golang-nextjs-todo/services"
 	"log"
-	"os"
 	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 var (
 	server         *gin.Engine
-	mongoclient    *mongo.Client
 	usercollection *mongo.Collection
 	taskcollection *mongo.Collection
 	usercontroller controllers.UserController
@@ -40,23 +36,10 @@ func init() {
 	if err != nil {
 		log.Fatalf("Some error occured. Err: %s", err)
 	}
-	// database connection
-	mongoconn := options.Client().ApplyURI(string(os.Getenv("MONGO_URI")))
-	mongoclient, err = mongo.Connect(ctx, mongoconn)
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-	err = mongoclient.Ping(ctx, readpref.Primary())
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-	fmt.Println("Connected to MongoDB!!!!")
-
 	// collections
-	usercollection = mongoclient.Database("golangTodos").Collection("users")
-	taskcollection = mongoclient.Database("golangTodos").Collection("tasks")
+	db.ConnectDB()
+	usercollection = db.MongoDB.Database("golangTodos").Collection("users")
+	taskcollection = db.MongoDB.Database("golangTodos").Collection("tasks")
 	// controllers
 	usercontroller = controllers.NewUserController(usercollection, ctx)
 	taskcontroller = controllers.NewTaskController(taskcollection, ctx)
@@ -81,7 +64,7 @@ func init() {
 }
 
 func main() {
-	defer mongoclient.Disconnect(ctx)
+	defer db.MongoDB.Disconnect(ctx)
 	basepath := server.Group("/api/v1")
 
 	userroute.UserRoutes(basepath)
