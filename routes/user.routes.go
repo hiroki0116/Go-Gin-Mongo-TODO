@@ -25,6 +25,6 @@ func (ur *UserRoutes) UserRoutes(rg *gin.RouterGroup) {
 	userroute.POST("/login", ur.UserService.Login)
 	userroute.GET("/:id", ur.RequireAuth.SetJWT, ur.UserService.GetUserById)
 	userroute.GET("/", ur.UserService.GetAllUsers)
-	userroute.PATCH("/:id", ur.RequireAuth.SetJWT, ur.UserService.UpdateUser)
+	userroute.PUT("/:id", ur.RequireAuth.SetJWT, ur.UserService.UpdateUser)
 	userroute.DELETE("/:id", ur.RequireAuth.SetJWT, ur.UserService.DeleteUser)
 }
