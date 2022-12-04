@@ -58,13 +58,13 @@ func init() {
 		c.JSON(200, gin.H{"message": "ok"})
 	})
 	server.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},
-		AllowMethods:     []string{"POST, GET, OPTIONS, PUT, DELETE"},
-		AllowHeaders:     []string{"Origin, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, X-Max,Set-Cookie"},
-		ExposeHeaders:    []string{"Content-Length"},
+		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "Authorization"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
+	server.Use(gin.Logger())
 }
 
 func main() {
@@ -73,6 +73,5 @@ func main() {
 
 	userroute.UserRoutes(basepath)
 	taskroute.TaskRoutes(basepath)
-
 	log.Fatalln(server.Run(":8000"))
 }

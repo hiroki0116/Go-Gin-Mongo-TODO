@@ -3,9 +3,9 @@ package models
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
 type Task struct {
-	ID            primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	ID            primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
 	Title         string             `json:"title,omitempty" bson:"title,omitempty" binding:"max=250"`
-	Completed     bool               `json:"completed,omitempty" bson:"completed,omitempty,omitempty"`
+	Completed     bool               `json:"completed,omitempty" bson:"completed,omitempty"`
 	CompletedDate string             `json:"completed_date,omitempty" bson:"completed_date,omitempty"`
 	CreatedAt     string             `json:"created_at,omitempty" bson:"created_at,omitempty"`
 	UpdatedAt     string             `json:"updated_at,omitempty" bson:"updated_at,omitempty"`

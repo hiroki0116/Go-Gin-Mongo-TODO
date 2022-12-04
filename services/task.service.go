@@ -49,6 +49,13 @@ func (ts *TaskService) GetAllTasks(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
+	if tasks == nil {
+		// return empty array if no tasks found
+		var emptyTasks []models.Task
+		res := utils.NewHttpResponse(http.StatusOK, emptyTasks)
+		ctx.JSON(http.StatusOK, res)
+		return
+	}
 	res := utils.NewHttpResponse(http.StatusOK, tasks)
 	ctx.JSON(http.StatusOK, res)
 }
@@ -66,10 +73,8 @@ func (ts *TaskService) CreateTask(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
-	type response struct {
-		success bool
-	}
-	res := utils.NewHttpResponse(http.StatusOK, response{success: true})
+
+	res := utils.NewHttpResponse(http.StatusOK, "Successfully created task")
 	ctx.JSON(http.StatusCreated, res)
 }
 
@@ -94,7 +99,6 @@ func (ts *TaskService) UpdateTask(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
-
 	res := utils.NewHttpResponse(http.StatusOK, "Successfully updated task")
 	ctx.JSON(http.StatusOK, res)
 }
