@@ -148,13 +148,7 @@ func (us *UserService) Login(ctx *gin.Context) {
 	}
 
 	// Generate jwt token
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": user.ID,
-		"exp": time.Now().Add(time.Hour * 24 * 30).Unix(),
-	})
-
-	// Sign and get the complete encoded token as a string using the secret
-	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+	tokenString, err := utils.GenerateJWTToken(user.ID)
 	if err != nil {
 		res := utils.NewHttpResponse(http.StatusBadRequest, err)
 		ctx.JSON(http.StatusBadRequest, res)
