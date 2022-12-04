@@ -16,9 +16,9 @@ var (
 	err     error
 )
 
-func ConnectDB() {
+func ConnectDB(MONGO_URI string) {
 	// database connection
-	mongoconn := options.Client().ApplyURI(string(os.Getenv("MONGO_URI")))
+	mongoconn := options.Client().ApplyURI(string(os.Getenv(MONGO_URI)))
 	ctx := context.Background()
 	MongoDB, err = mongo.Connect(ctx, mongoconn)
 	if err != nil {

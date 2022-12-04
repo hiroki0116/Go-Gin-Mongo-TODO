@@ -1,4 +1,4 @@
-package main
+package test
 
 import (
 	"context"
@@ -9,9 +9,9 @@ import (
 	"golang-nextjs-todo/services"
 	"log"
 	"os"
-	"time"
+	"testing"
 
-	"github.com/gin-contrib/cors"
+	unitTest "github.com/Valiben/gin_unit_test"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -33,12 +33,13 @@ var (
 
 func init() {
 	ctx = context.TODO()
-	err := godotenv.Load(".env")
+	err := godotenv.Load("test.env")
 	if err != nil {
 		log.Fatalf("Some error occured. Err: %s", err)
 	}
+	// database connection
+	db.ConnectDB("MONGO_URI_TEST")
 	// collections
-	db.ConnectDB(os.Getenv("MONGO_URI"))
 	usercollection = db.MongoDB.Database("golangTodos").Collection("users")
 	taskcollection = db.MongoDB.Database("golangTodos").Collection("tasks")
 	// controllers
@@ -54,25 +55,26 @@ func init() {
 	taskroute = routes.NewTaskRoute(taskservice, requireauth)
 	// server
 	server = gin.Default()
-	server.GET("/api/v1/healthcheck", func(c *gin.Context) {
-		c.JSON(200, gin.H{"message": "ok"})
-	})
-	server.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},
-		AllowMethods:     []string{"POST, GET, OPTIONS, PUT, DELETE"},
-		AllowHeaders:     []string{"Origin, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, X-Max,Set-Cookie"},
-		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
-		MaxAge:           12 * time.Hour,
-	}))
 }
 
-func main() {
+func TestMain(m *testing.M) {
 	defer db.MongoDB.Disconnect(ctx)
+	// Set endpointes
 	basepath := server.Group("/api/v1")
-
 	userroute.UserRoutes(basepath)
 	taskroute.TaskRoutes(basepath)
+	unitTest.SetRouter(server)
 
-	log.Fatalln(server.Run(":8000"))
+	// Populate sample data
+	PopulateUserSampleData(usercollection, ctx)
+
+	newLog := log.New(os.Stdout, "", log.Llongfile|log.Ldate|log.Ltime)
+	unitTest.SetLog(newLog)
+	exitVal := m.Run()
+
+	// Delte populated sample data
+	DeleteUserData(usercollection, ctx)
+
+	log.Println("Everything below run after ALL test")
+	os.Exit(exitVal)
 }
