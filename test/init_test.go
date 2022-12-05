@@ -67,13 +67,15 @@ func TestMain(m *testing.M) {
 
 	// Populate sample data
 	PopulateUserSampleData(usercollection, ctx)
+	PopulateTaskSampleData(usercollection, taskcollection, ctx)
 
 	newLog := log.New(os.Stdout, "", log.Llongfile|log.Ldate|log.Ltime)
 	unitTest.SetLog(newLog)
 	exitVal := m.Run()
 
 	// Delte populated sample data
-	DeleteUserData(usercollection, ctx)
+	DeleteSampleData(usercollection, ctx)
+	DeleteSampleData(taskcollection, ctx)
 
 	log.Println("Everything below run after ALL test")
 	os.Exit(exitVal)

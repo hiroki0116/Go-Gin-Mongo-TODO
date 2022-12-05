@@ -74,7 +74,7 @@ func (ts *TaskService) CreateTask(ctx *gin.Context) {
 		return
 	}
 
-	res := utils.NewHttpResponse(http.StatusOK, "Successfully created task")
+	res := utils.NewHttpResponse(http.StatusCreated, "Successfully created task")
 	ctx.JSON(http.StatusCreated, res)
 }
 
