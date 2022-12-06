@@ -8,7 +8,6 @@ import (
 	"golang-nextjs-todo/routes"
 	"golang-nextjs-todo/services"
 	"log"
-	"os"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -38,7 +37,7 @@ func init() {
 		log.Fatalf("Some error occured. Err: %s", err)
 	}
 	// collections
-	db.ConnectDB(os.Getenv("MONGO_URI"))
+	db.ConnectDB("MONGO_URI")
 	usercollection = db.MongoDB.Database("golangTodos").Collection("users")
 	taskcollection = db.MongoDB.Database("golangTodos").Collection("tasks")
 	// controllers
