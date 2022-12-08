@@ -4,12 +4,15 @@ import (
 	"context"
 	"golang-nextjs-todo/controllers"
 	"golang-nextjs-todo/db"
+	"golang-nextjs-todo/graph"
 	"golang-nextjs-todo/middleware"
 	"golang-nextjs-todo/routes"
 	"golang-nextjs-todo/services"
 	"log"
 	"time"
 
+	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -56,6 +59,8 @@ func init() {
 	server.GET("/api/v1/healthcheck", func(c *gin.Context) {
 		c.JSON(200, gin.H{"message": "ok"})
 	})
+	server.POST("/query", graphqlHandler())
+	server.GET("/", playgroundHandler())
 	server.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:3000"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"},
@@ -64,6 +69,26 @@ func init() {
 		MaxAge:           12 * time.Hour,
 	}))
 	server.Use(gin.Logger())
+}
+
+// Defining the Graphql handler
+func graphqlHandler() gin.HandlerFunc {
+	// NewExecutableSchema and Config are in the generated.go file
+	// Resolver is in the resolver.go file
+	h := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{}}))
+
+	return func(c *gin.Context) {
+		h.ServeHTTP(c.Writer, c.Request)
+	}
+}
+
+// Defining the Playground handler
+func playgroundHandler() gin.HandlerFunc {
+	h := playground.Handler("GraphQL", "/query")
+
+	return func(c *gin.Context) {
+		h.ServeHTTP(c.Writer, c.Request)
+	}
 }
 
 func main() {
