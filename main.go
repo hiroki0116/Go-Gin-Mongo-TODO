@@ -59,7 +59,7 @@ func init() {
 	server.GET("/api/v1/healthcheck", func(c *gin.Context) {
 		c.JSON(200, gin.H{"message": "ok"})
 	})
-	server.POST("/query", graphqlHandler())
+	server.POST("/query", requireauth.SetJWT, graphqlHandler())
 	server.GET("/", playgroundHandler())
 	server.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:3000"},

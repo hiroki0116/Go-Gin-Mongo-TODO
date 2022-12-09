@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"context"
 	"fmt"
 	"golang-nextjs-todo/controllers"
 	"golang-nextjs-todo/utils"
@@ -63,6 +64,10 @@ func (ra *RequireAuth) SetJWT(ctx *gin.Context) {
 			return
 		}
 
+		// for gqlgen context
+		c := context.WithValue(ctx.Request.Context(), "id", user.ID)
+		ctx.Request = ctx.Request.WithContext(c)
+		// for rest
 		ctx.Set("id", user.ID)
 		ctx.Set("email", user.Email)
 

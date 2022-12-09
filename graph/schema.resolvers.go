@@ -8,6 +8,9 @@ import (
 	"context"
 	"fmt"
 	"golang-nextjs-todo/graph/model"
+	// "golang-nextjs-todo/models"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // CreateTask is the resolver for the createTask field.
@@ -27,7 +30,15 @@ func (r *mutationResolver) DeleteTask(ctx context.Context, id string) (*model.Ta
 
 // Tasks is the resolver for the tasks field.
 func (r *queryResolver) Tasks(ctx context.Context) ([]*model.Task, error) {
-	panic(fmt.Errorf("not implemented: Tasks - tasks"))
+	userId := ctx.Value("id")
+	var tasks []*model.Task
+	tasks = append(tasks, &model.Task{
+		ID:            primitive.NewObjectID().Hex(),
+		UserID:		   userId.(primitive.ObjectID).Hex(),
+		Title:         "Test",
+		Completed:     false,
+	})
+	return tasks, nil
 }
 
 // Task is the resolver for the task field.
