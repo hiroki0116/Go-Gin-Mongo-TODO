@@ -97,5 +97,5 @@ func main() {
 
 	userroute.UserRoutes(basepath)
 	taskroute.TaskRoutes(basepath)
-	log.Fatalln(server.Run(":8000"))
+	log.Fatalln(server.Run(":8080"))
 }
