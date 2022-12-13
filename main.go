@@ -62,7 +62,7 @@ func init() {
 	server.POST("/query", requireauth.SetJWT, graphqlHandler())
 	server.GET("/", playgroundHandler())
 	server.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowOrigins:     []string{"http://localhost:3000", "https://go-next-tasks.vercel.app"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "Authorization"},
 		AllowCredentials: true,
