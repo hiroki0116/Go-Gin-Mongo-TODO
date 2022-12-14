@@ -10,4 +10,5 @@ type User struct {
 	Password  string             `json:"password" bson:"password,omitempty"`
 	CreatedAt string             `json:"created_at" bson:"created_at,omitempty"`
 	UpdatedAt string             `json:"updated_at" bson:"updated_at,omitempty"`
+	Token     string             `json:"token" bson:"token,omitempty"`
 }
