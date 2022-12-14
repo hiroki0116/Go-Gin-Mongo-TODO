@@ -68,13 +68,14 @@ func (ts *TaskService) CreateTask(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
-	if err := ts.TaskController.CreateTask(&task, userId); err != nil {
+	newTask, err := ts.TaskController.CreateTask(&task, userId)
+	if err != nil {
 		res := utils.NewHttpResponse(http.StatusBadRequest, err)
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
 
-	res := utils.NewHttpResponse(http.StatusCreated, "Successfully created task")
+	res := utils.NewHttpResponse(http.StatusCreated, newTask)
 	ctx.JSON(http.StatusCreated, res)
 }
 
@@ -94,12 +95,13 @@ func (ts *TaskService) UpdateTask(ctx *gin.Context) {
 		return
 	}
 
-	if err := ts.TaskController.UpdateTask(taskId, &task); err != nil {
+	updatedTask, err := ts.TaskController.UpdateTask(taskId, &task)
+	if err != nil {
 		res := utils.NewHttpResponse(http.StatusBadRequest, err)
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
-	res := utils.NewHttpResponse(http.StatusOK, "Successfully updated task")
+	res := utils.NewHttpResponse(http.StatusOK, updatedTask)
 	ctx.JSON(http.StatusOK, res)
 }
 
