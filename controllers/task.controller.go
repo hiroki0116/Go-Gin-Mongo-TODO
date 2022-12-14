@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"errors"
 	"golang-nextjs-todo/models"
 	"time"
 
@@ -13,8 +14,8 @@ import (
 type TaskController interface {
 	GetTaskById(primitive.ObjectID, primitive.ObjectID) (*models.Task, error)
 	GetAllTasks(primitive.ObjectID) ([]*models.Task, error)
-	CreateTask(*models.Task, primitive.ObjectID) error
-	UpdateTask(primitive.ObjectID, *models.Task) error
+	CreateTask(*models.Task, primitive.ObjectID) (*models.Task, error)
+	UpdateTask(primitive.ObjectID, *models.Task) (*models.Task, error)
 	DeleteTask(primitive.ObjectID) error
 }
 
@@ -71,18 +72,29 @@ func (tc *TaskControllerReceiver) GetAllTasks(userId primitive.ObjectID) ([]*mod
 	return tasks, nil
 }
 
-func (tc *TaskControllerReceiver) CreateTask(task *models.Task, userId primitive.ObjectID) error {
+func (tc *TaskControllerReceiver) CreateTask(task *models.Task, userId primitive.ObjectID) (*models.Task, error) {
 	createdAt := time.Now().Format(time.RFC3339)
 	updatedAt := time.Now().Format(time.RFC3339)
 	task.Completed = false
 	task.CreatedAt = createdAt
 	task.UpdatedAt = updatedAt
 	task.UserID = userId
-	_, err := tc.taskcollection.InsertOne(tc.ctx, task)
-	return err
+	result, err := tc.taskcollection.InsertOne(tc.ctx, task)
+	if err != nil {
+		return nil, err
+	}
+	oid, ok := result.InsertedID.(primitive.ObjectID)
+	if !ok {
+		return nil, errors.New("failed to fetch task id when creating task")
+	}
+	task.ID = oid
+	return task, err
 }
 
-func (tc *TaskControllerReceiver) UpdateTask(id primitive.ObjectID, task *models.Task) error {
+func (tc *TaskControllerReceiver) UpdateTask(id primitive.ObjectID, task *models.Task) (*models.Task, error) {
+
+	task.CompletedDate = time.Now().Format(time.RFC3339)
+
 	filter := bson.D{
 		bson.E{
 			Key:   "_id",
@@ -104,13 +116,13 @@ func (tc *TaskControllerReceiver) UpdateTask(id primitive.ObjectID, task *models
 				},
 				bson.E{
 					Key:   "completed_date",
-					Value: time.Now().Format(time.RFC3339),
+					Value: task.CompletedDate,
 				},
 			},
 		},
 	}
 	_, err := tc.taskcollection.UpdateOne(tc.ctx, filter, update)
-	return err
+	return task, err
 }
 
 func (tc *TaskControllerReceiver) DeleteTask(id primitive.ObjectID) error {
