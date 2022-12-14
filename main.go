@@ -9,6 +9,7 @@ import (
 	"golang-nextjs-todo/routes"
 	"golang-nextjs-todo/services"
 	"log"
+	"os"
 	"time"
 
 	"github.com/99designs/gqlgen/graphql/handler"
@@ -35,9 +36,11 @@ var (
 
 func init() {
 	ctx = context.TODO()
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Fatalf("Some error occured. Err: %s", err)
+	if os.Getenv("APP_ENV") != "production" {
+		err := godotenv.Load(".env")
+		if err != nil {
+			log.Fatalf("Some error occured. Err: %s", err)
+		}
 	}
 	// collections
 	db.ConnectDB("MONGO_URI")
