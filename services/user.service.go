@@ -165,6 +165,7 @@ func (us *UserService) Login(ctx *gin.Context) {
 		LastName:  user.LastName,
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
+		Token:     tokenString,
 	}
 	res := utils.NewHttpResponse(http.StatusOK, resUser)
 	ctx.JSON(http.StatusOK, res)
