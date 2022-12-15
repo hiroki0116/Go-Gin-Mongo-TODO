@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"golang-nextjs-todo/models"
+	"log"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -58,6 +59,13 @@ func (tc *TaskControllerReceiver) GetAllTasks(userId primitive.ObjectID) ([]*mod
 			Value: userId,
 		},
 	}
+	count, _ := tc.taskcollection.CountDocuments(tc.ctx, query)
+	if count == 0 {
+		// return empty array if no tasks found
+		log.Println("count", count)
+		return []*models.Task{}, nil
+	}
+
 	cursor, err := tc.taskcollection.Find(tc.ctx, query)
 	if err != nil {
 		return nil, err
