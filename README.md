@@ -5,9 +5,13 @@ This is super simple task manager app. You can keep track of your daily tasks ea
 ## Production Site 
 [https://go-next-tasks.vercel.app/](https://go-next-tasks.vercel.app/)
 
-<img src="https://res.cloudinary.com/sixty-seconds-idea-training-project/image/upload/v1671121225/ApplicationLayout/firstHalfTask_eizrqv.gif" />
 
-<img src="https://res.cloudinary.com/sixty-seconds-idea-training-project/image/upload/v1671123366/ApplicationLayout/taskLastHafl_cm5naw.gif" />
+<div style="flex:100%">
+ <img src="https://res.cloudinary.com/sixty-seconds-idea-training-project/image/upload/v1671121225/ApplicationLayout/firstHalfTask_eizrqv.gif" width="45%"/>
+ <img src="https://res.cloudinary.com/sixty-seconds-idea-training-project/image/upload/v1671154890/ApplicationLayout/shortClip_zbjpbt.gif" width="45%"/>
+</div>
+
+<img src="https://res.cloudinary.com/sixty-seconds-idea-training-project/image/upload/v1671155191/ApplicationLayout/shortClip_2_vgezfa.gif" width="45%">
 
 ## Getting Start
 
