@@ -9,8 +9,6 @@ This is super simple task manager app. You can keep track of your daily tasks ea
 
 <img src="https://res.cloudinary.com/sixty-seconds-idea-training-project/image/upload/v1671123366/ApplicationLayout/taskLastHafl_cm5naw.gif" />
 
-
-
 ## Getting Start
 
 1. Install front end project on your local machine
