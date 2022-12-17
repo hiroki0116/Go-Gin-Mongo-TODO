@@ -5,6 +5,8 @@ This is super simple task manager app. You can keep track of your daily tasks ea
 ## Production Site 
 
 *FYI, API server is deployed on Cloud Run and it will cold start. You might need to wait for 15 seconds to run the application.
+
+
 [https://go-next-tasks.vercel.app/](https://go-next-tasks.vercel.app/)
 
 
