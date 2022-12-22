@@ -8,11 +8,11 @@ import (
 )
 
 type UserRoutes struct {
-	UserService services.UserService
+	UserService services.IUserService
 	RequireAuth middleware.RequireAuth
 }
 
-func NewUserRoute(userservice services.UserService, requireauth middleware.RequireAuth) UserRoutes {
+func NewUserRoute(userservice services.IUserService, requireauth middleware.RequireAuth) UserRoutes {
 	return UserRoutes{
 		UserService: userservice,
 		RequireAuth: requireauth,

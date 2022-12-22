@@ -8,11 +8,11 @@ import (
 )
 
 type TaskRoutes struct {
-	TaskService services.TaskService
+	TaskService services.ITaskService
 	RequireAuth middleware.RequireAuth
 }
 
-func NewTaskRoute(taskservice services.TaskService, requireauth middleware.RequireAuth) TaskRoutes {
+func NewTaskRoute(taskservice services.ITaskService, requireauth middleware.RequireAuth) TaskRoutes {
 	return TaskRoutes{
 		TaskService: taskservice,
 		RequireAuth: requireauth,

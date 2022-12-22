@@ -79,10 +79,10 @@ func TestGeAllTasks(t *testing.T) {
 
 func TestCreateTask(t *testing.T) {
 	type HTTPResponse struct {
-		Status  int    `json:"status"`
-		Success bool   `json:"success"`
-		Message string `json:"message"`
-		Data    string `json:"data"`
+		Status  int         `json:"status"`
+		Success bool        `json:"success"`
+		Message string      `json:"message"`
+		Data    models.Task `json:"data"`
 	}
 	var res HTTPResponse
 
@@ -155,10 +155,10 @@ func TestGetTaskById(t *testing.T) {
 
 func TestUpdateTask(t *testing.T) {
 	type HTTPResponse struct {
-		Status  int    `json:"status"`
-		Success bool   `json:"success"`
-		Message string `json:"message"`
-		Data    string `json:"data"`
+		Status  int         `json:"status"`
+		Success bool        `json:"success"`
+		Message string      `json:"message"`
+		Data    models.Task `json:"data"`
 	}
 
 	type TaskParams struct {

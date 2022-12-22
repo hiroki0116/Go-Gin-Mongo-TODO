@@ -13,7 +13,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type UserController interface {
+type IUserController interface {
 	CreateUser(*models.User) (primitive.ObjectID, error)
 	GetUserById(primitive.ObjectID) (*models.User, error)
 	GetUserByEmail(email string) (*models.User, error)
@@ -22,19 +22,19 @@ type UserController interface {
 	DeleteUser(primitive.ObjectID) error
 }
 
-type UserControllerReceiver struct {
+type UserController struct {
 	usercollection *mongo.Collection
 	ctx            context.Context
 }
 
-func NewUserController(usercollection *mongo.Collection, ctx context.Context) *UserControllerReceiver {
-	return &UserControllerReceiver{
+func NewUserController(usercollection *mongo.Collection, ctx context.Context) IUserController {
+	return &UserController{
 		usercollection: usercollection,
 		ctx:            ctx,
 	}
 }
 
-func (uc *UserControllerReceiver) CreateUser(user *models.User) (primitive.ObjectID, error) {
+func (uc *UserController) CreateUser(user *models.User) (primitive.ObjectID, error) {
 	createdAt := time.Now().Format(time.RFC3339)
 	updatedAt := time.Now().Format(time.RFC3339)
 	user.CreatedAt = createdAt
@@ -47,7 +47,7 @@ func (uc *UserControllerReceiver) CreateUser(user *models.User) (primitive.Objec
 	return oid, err
 }
 
-func (uc *UserControllerReceiver) GetUserById(id primitive.ObjectID) (*models.User, error) {
+func (uc *UserController) GetUserById(id primitive.ObjectID) (*models.User, error) {
 	var user *models.User
 	query := bson.D{
 		bson.E{
@@ -63,7 +63,7 @@ func (uc *UserControllerReceiver) GetUserById(id primitive.ObjectID) (*models.Us
 	return user, nil
 }
 
-func (uc *UserControllerReceiver) GetUserByEmail(email string) (*models.User, error) {
+func (uc *UserController) GetUserByEmail(email string) (*models.User, error) {
 	var user *models.User
 	query := bson.D{
 		bson.E{
@@ -79,7 +79,7 @@ func (uc *UserControllerReceiver) GetUserByEmail(email string) (*models.User, er
 	return user, nil
 }
 
-func (uc *UserControllerReceiver) GetAllUsers() ([]*models.User, error) {
+func (uc *UserController) GetAllUsers() ([]*models.User, error) {
 	var users []*models.User
 	cursor, err := uc.usercollection.Find(uc.ctx, bson.D{{}})
 	if err != nil {
@@ -98,7 +98,7 @@ func (uc *UserControllerReceiver) GetAllUsers() ([]*models.User, error) {
 	return users, nil
 }
 
-func (uc *UserControllerReceiver) UpdateUser(id primitive.ObjectID, user *models.User) error {
+func (uc *UserController) UpdateUser(id primitive.ObjectID, user *models.User) error {
 	filter := bson.D{
 		bson.E{
 			Key:   "_id",
@@ -137,7 +137,7 @@ func (uc *UserControllerReceiver) UpdateUser(id primitive.ObjectID, user *models
 	return nil
 }
 
-func (uc *UserControllerReceiver) DeleteUser(id primitive.ObjectID) error {
+func (uc *UserController) DeleteUser(id primitive.ObjectID) error {
 	filter := bson.D{
 		bson.E{
 			Key:   "_id",

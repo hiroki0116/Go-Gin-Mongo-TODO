@@ -14,12 +14,21 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type UserService struct {
-	UserController controllers.UserController
+type IUserService interface {
+	GetUserById(ctx *gin.Context)
+	GetAllUsers(ctx *gin.Context)
+	SignUp(ctx *gin.Context)
+	Login(ctx *gin.Context)
+	UpdateUser(ctx *gin.Context)
+	DeleteUser(ctx *gin.Context)
 }
 
-func NewUser(usercontroller controllers.UserController) UserService {
-	return UserService{
+type UserService struct {
+	UserController controllers.IUserController
+}
+
+func NewUser(usercontroller controllers.IUserController) IUserService {
+	return &UserService{
 		UserController: usercontroller,
 	}
 }

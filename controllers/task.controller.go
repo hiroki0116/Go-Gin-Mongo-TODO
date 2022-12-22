@@ -12,7 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type TaskController interface {
+type ITaskController interface {
 	GetTaskById(primitive.ObjectID, primitive.ObjectID) (*models.Task, error)
 	GetAllTasks(primitive.ObjectID) ([]*models.Task, error)
 	CreateTask(*models.Task, primitive.ObjectID) (*models.Task, error)
@@ -20,19 +20,19 @@ type TaskController interface {
 	DeleteTask(primitive.ObjectID) error
 }
 
-type TaskControllerReceiver struct {
+type TaskController struct {
 	taskcollection *mongo.Collection
 	ctx            context.Context
 }
 
-func NewTaskController(taskcollection *mongo.Collection, ctx context.Context) *TaskControllerReceiver {
-	return &TaskControllerReceiver{
+func NewTaskController(taskcollection *mongo.Collection, ctx context.Context) ITaskController {
+	return &TaskController{
 		taskcollection: taskcollection,
 		ctx:            ctx,
 	}
 }
 
-func (tc *TaskControllerReceiver) GetTaskById(id, userId primitive.ObjectID) (*models.Task, error) {
+func (tc *TaskController) GetTaskById(id, userId primitive.ObjectID) (*models.Task, error) {
 	var task *models.Task
 	query := bson.D{
 		bson.E{
@@ -51,7 +51,7 @@ func (tc *TaskControllerReceiver) GetTaskById(id, userId primitive.ObjectID) (*m
 	return task, nil
 }
 
-func (tc *TaskControllerReceiver) GetAllTasks(userId primitive.ObjectID) ([]*models.Task, error) {
+func (tc *TaskController) GetAllTasks(userId primitive.ObjectID) ([]*models.Task, error) {
 	var tasks []*models.Task
 	query := bson.D{
 		bson.E{
@@ -80,7 +80,7 @@ func (tc *TaskControllerReceiver) GetAllTasks(userId primitive.ObjectID) ([]*mod
 	return tasks, nil
 }
 
-func (tc *TaskControllerReceiver) CreateTask(task *models.Task, userId primitive.ObjectID) (*models.Task, error) {
+func (tc *TaskController) CreateTask(task *models.Task, userId primitive.ObjectID) (*models.Task, error) {
 	createdAt := time.Now().Format(time.RFC3339)
 	updatedAt := time.Now().Format(time.RFC3339)
 	task.Completed = false
@@ -99,7 +99,7 @@ func (tc *TaskControllerReceiver) CreateTask(task *models.Task, userId primitive
 	return task, err
 }
 
-func (tc *TaskControllerReceiver) UpdateTask(id primitive.ObjectID, task *models.Task) (*models.Task, error) {
+func (tc *TaskController) UpdateTask(id primitive.ObjectID, task *models.Task) (*models.Task, error) {
 
 	task.CompletedDate = time.Now().Format(time.RFC3339)
 
@@ -133,7 +133,7 @@ func (tc *TaskControllerReceiver) UpdateTask(id primitive.ObjectID, task *models
 	return task, err
 }
 
-func (tc *TaskControllerReceiver) DeleteTask(id primitive.ObjectID) error {
+func (tc *TaskController) DeleteTask(id primitive.ObjectID) error {
 	query := bson.D{
 		bson.E{
 			Key:   "_id",

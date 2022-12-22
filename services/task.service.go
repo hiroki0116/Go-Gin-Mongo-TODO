@@ -10,12 +10,20 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type TaskService struct {
-	TaskController controllers.TaskController
+type ITaskService interface {
+	GetTaskById(ctx *gin.Context)
+	GetAllTasks(ctx *gin.Context)
+	CreateTask(ctx *gin.Context)
+	UpdateTask(ctx *gin.Context)
+	DeleteTask(ctx *gin.Context)
 }
 
-func NewTask(taskcontroller controllers.TaskController) TaskService {
-	return TaskService{
+type TaskService struct {
+	TaskController controllers.ITaskController
+}
+
+func NewTask(taskcontroller controllers.ITaskController) ITaskService {
+	return &TaskService{
 		TaskController: taskcontroller,
 	}
 }

@@ -24,10 +24,10 @@ var (
 	server         *gin.Engine
 	usercollection *mongo.Collection
 	taskcollection *mongo.Collection
-	usercontroller controllers.UserController
-	taskcontroller controllers.TaskController
-	userservice    services.UserService
-	taskservice    services.TaskService
+	usercontroller controllers.IUserController
+	taskcontroller controllers.ITaskController
+	userservice    services.IUserService
+	taskservice    services.ITaskService
 	requireauth    middleware.RequireAuth
 	userroute      routes.UserRoutes
 	taskroute      routes.TaskRoutes
