@@ -16,10 +16,10 @@ import (
 )
 
 type RequireAuth struct {
-	UserController controllers.UserController
+	UserController controllers.IUserController
 }
 
-func NewRequireAuth(usercontroller controllers.UserController) RequireAuth {
+func NewRequireAuth(usercontroller controllers.IUserController) RequireAuth {
 	return RequireAuth{
 		UserController: usercontroller,
 	}
