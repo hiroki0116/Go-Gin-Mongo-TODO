@@ -1,21 +1,16 @@
-# GraphQL schema example
-#
-# https://gqlgen.com/getting-started/
-scalar Time
-
 type Task {
   _id: ID!
   title: String!
   completed: Boolean!
-  completed_date: Time!
-  created_at: Time!
-  updated_at: Time!
-  user_id: String!
+  completed_date: String!
+  created_at: String!
+  updated_at: String!
+  user_id: ID!
 }
 
 type Query {
   tasks: [Task!]!
-  task(_id: ID!): Task!
+  task(_id: String): Task!
 }
 
 input NewTask {
@@ -23,7 +18,7 @@ input NewTask {
 }
 
 input UpdateTask {
-  _id: ID!
+  _id: String!
   title: String!
   completed: Boolean!
 }
@@ -31,5 +26,5 @@ input UpdateTask {
 type Mutation {
   createTask(input: NewTask!): Task!
   updateTask(input: UpdateTask!): Task!
-  deleteTask(_id: ID!): Task!
+  deleteTask(_id: String!): Task!
 }
