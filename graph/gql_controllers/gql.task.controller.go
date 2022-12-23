@@ -3,6 +3,7 @@ package gql_controllers
 import (
 	"context"
 	"golang-nextjs-todo/graph/model"
+	"golang-nextjs-todo/models"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -10,8 +11,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func GqlGetAllTasks(ctx context.Context, gql_taskcollection *mongo.Collection, userId primitive.ObjectID) ([]*model.Task, error) {
-	var tasks []*model.Task
+func GqlGetAllTasks(ctx context.Context, gql_taskcollection *mongo.Collection, userId primitive.ObjectID) ([]*models.Task, error) {
+	var tasks []*models.Task
 	query := bson.D{
 		bson.E{
 			Key:   "user_id",
@@ -23,7 +24,7 @@ func GqlGetAllTasks(ctx context.Context, gql_taskcollection *mongo.Collection, u
 		return nil, err
 	}
 	for cursor.Next(ctx) {
-		var task *model.Task
+		var task *models.Task
 		if err := cursor.Decode(&task); err != nil {
 			return nil, err
 		}
@@ -32,8 +33,8 @@ func GqlGetAllTasks(ctx context.Context, gql_taskcollection *mongo.Collection, u
 	return tasks, nil
 }
 
-func GqlGetTask(ctx context.Context, gql_taskcollection *mongo.Collection, id primitive.ObjectID) (*model.Task, error) {
-	var task *model.Task
+func GqlGetTask(ctx context.Context, gql_taskcollection *mongo.Collection, id primitive.ObjectID) (*models.Task, error) {
+	var task *models.Task
 	query := bson.D{
 		bson.E{
 			Key:   "_id",
@@ -46,7 +47,7 @@ func GqlGetTask(ctx context.Context, gql_taskcollection *mongo.Collection, id pr
 	return task, nil
 }
 
-func CreateTask(ctx context.Context, gql_taskcollection *mongo.Collection, task *model.Task) (*model.Task, error) {
+func CreateTask(ctx context.Context, gql_taskcollection *mongo.Collection, task *models.Task) (*models.Task, error) {
 	_, err := gql_taskcollection.InsertOne(ctx, task)
 	if err != nil {
 		return nil, err
@@ -66,14 +67,10 @@ func DeleteTask(ctx context.Context, gql_taskcollection *mongo.Collection, id pr
 }
 
 func UpdateTask(ctx context.Context, gql_taskcollection *mongo.Collection, task model.UpdateTask) error {
-	oid, err := primitive.ObjectIDFromHex(task.ID)
-	if err != nil {
-		return err
-	}
 	filter := bson.D{
 		bson.E{
 			Key:   "_id",
-			Value: oid,
+			Value: task.ID,
 		},
 	}
 
@@ -96,6 +93,6 @@ func UpdateTask(ctx context.Context, gql_taskcollection *mongo.Collection, task 
 			},
 		},
 	}
-	_, err = gql_taskcollection.UpdateOne(ctx, filter, update)
+	_, err := gql_taskcollection.UpdateOne(ctx, filter, update)
 	return err
 }
