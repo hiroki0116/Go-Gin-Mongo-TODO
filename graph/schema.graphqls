@@ -1,3 +1,14 @@
+type User {
+  _id: ID!
+  first_name: String!
+  last_name: String!
+  email: String!
+  password: String!
+  created_at: String!
+  updated_at: String!
+  token: String!
+}
+
 type Task {
   _id: ID!
   title: String!
@@ -9,12 +20,33 @@ type Task {
 }
 
 type Query {
+  users: [User!]!
+  user(_id: ID!): User!
   tasks: [Task!]!
   task(_id: ID!): Task!
 }
 
+input SignupInput {
+  first_name: String!
+  last_name: String!
+  email: String!
+  password: String!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
 input NewTask {
   title: String!
+}
+
+input UpdateUser {
+  _id: ID!
+  email: String!
+  first_name: String!
+  last_name: String!
 }
 
 input UpdateTask {
@@ -24,6 +56,10 @@ input UpdateTask {
 }
 
 type Mutation {
+  signup(input: SignupInput!): User!
+  login(input: LoginInput!): User!
+  updateUser(input: UpdateUser!): User!
+  deleteUser(_id: ID!): ID!
   createTask(input: NewTask!): Task!
   updateTask(input: UpdateTask!): Task!
   deleteTask(_id: ID!): ID!

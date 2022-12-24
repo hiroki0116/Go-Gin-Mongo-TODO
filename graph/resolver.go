@@ -8,4 +8,5 @@ import "golang-nextjs-todo/controllers"
 
 type Resolver struct {
 	TaskController controllers.ITaskController
+	UserController controllers.IUserController
 }
