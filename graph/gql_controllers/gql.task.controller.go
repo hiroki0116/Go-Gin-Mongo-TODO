@@ -2,7 +2,7 @@ package gql_controllers
 
 import (
 	"context"
-	"golang-nextjs-todo/graph/model"
+	"errors"
 	"golang-nextjs-todo/models"
 	"time"
 
@@ -48,10 +48,15 @@ func GqlGetTask(ctx context.Context, gql_taskcollection *mongo.Collection, id pr
 }
 
 func CreateTask(ctx context.Context, gql_taskcollection *mongo.Collection, task *models.Task) (*models.Task, error) {
-	_, err := gql_taskcollection.InsertOne(ctx, task)
+	result, err := gql_taskcollection.InsertOne(ctx, task)
 	if err != nil {
 		return nil, err
 	}
+	oid, ok := result.InsertedID.(primitive.ObjectID)
+	if !ok {
+		return nil, errors.New("failed to fetch task id when creating task")
+	}
+	task.ID = oid
 	return task, nil
 }
 
@@ -66,7 +71,7 @@ func DeleteTask(ctx context.Context, gql_taskcollection *mongo.Collection, id pr
 	return err
 }
 
-func UpdateTask(ctx context.Context, gql_taskcollection *mongo.Collection, task model.UpdateTask) error {
+func UpdateTask(ctx context.Context, gql_taskcollection *mongo.Collection, task *models.Task) error {
 	filter := bson.D{
 		bson.E{
 			Key:   "_id",
@@ -88,7 +93,7 @@ func UpdateTask(ctx context.Context, gql_taskcollection *mongo.Collection, task 
 				},
 				bson.E{
 					Key:   "completed_date",
-					Value: time.Now(),
+					Value: time.Now().Format(time.RFC3339),
 				},
 			},
 		},
