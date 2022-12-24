@@ -13,7 +13,7 @@ import (
 )
 
 type ITaskController interface {
-	GetTaskById(primitive.ObjectID, primitive.ObjectID) (*models.Task, error)
+	GetTaskById(primitive.ObjectID) (*models.Task, error)
 	GetAllTasks(primitive.ObjectID) ([]*models.Task, error)
 	CreateTask(*models.Task, primitive.ObjectID) (*models.Task, error)
 	UpdateTask(primitive.ObjectID, *models.Task) (*models.Task, error)
@@ -32,16 +32,12 @@ func NewTaskController(taskcollection *mongo.Collection, ctx context.Context) IT
 	}
 }
 
-func (tc *TaskController) GetTaskById(id, userId primitive.ObjectID) (*models.Task, error) {
+func (tc *TaskController) GetTaskById(id primitive.ObjectID) (*models.Task, error) {
 	var task *models.Task
 	query := bson.D{
 		bson.E{
 			Key:   "_id",
 			Value: id,
-		},
-		bson.E{
-			Key:   "user_id",
-			Value: userId,
 		},
 	}
 	if err := tc.taskcollection.FindOne(tc.ctx, query).Decode(&task); err != nil {
