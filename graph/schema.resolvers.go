@@ -6,17 +6,16 @@ package graph
 
 import (
 	"context"
-	"fmt"
-	"time"
 	"golang-nextjs-todo/db"
 	"golang-nextjs-todo/graph/gql_controllers"
 	"golang-nextjs-todo/graph/model"
 	"golang-nextjs-todo/models"
-
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+// CreateTask is the resolver for the createTask field.
 func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) (*models.Task, error) {
 	taskcollection := db.MongoDB.Database("golangTodos").Collection("tasks")
 	id := ctx.Value("id")
@@ -40,17 +39,17 @@ func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) 
 func (r *mutationResolver) UpdateTask(ctx context.Context, input model.UpdateTask) (*models.Task, error) {
 	taskcollection := db.MongoDB.Database("golangTodos").Collection("tasks")
 	task := &models.Task{
-		ID:           input.ID,
-		Title:         input.Title,
-		Completed:     input.Completed,
-		UpdatedAt:    time.Now().Format(time.RFC3339),
+		ID:        input.ID,
+		Title:     input.Title,
+		Completed: input.Completed,
+		UpdatedAt: time.Now().Format(time.RFC3339),
 	}
-	err := gql_controllers.UpdateTask(ctx,taskcollection, task)
+	err := gql_controllers.UpdateTask(ctx, taskcollection, task)
 	if err != nil {
 		return nil, err
 	}
 
-	updatedTask,err := gql_controllers.GqlGetTask(ctx, taskcollection, input.ID)
+	updatedTask, err := gql_controllers.GqlGetTask(ctx, taskcollection, input.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +61,7 @@ func (r *mutationResolver) DeleteTask(ctx context.Context, id primitive.ObjectID
 	taskcollection := db.MongoDB.Database("golangTodos").Collection("tasks")
 	err := gql_controllers.DeleteTask(ctx, taskcollection, id)
 	if err != nil {
-		return id,err
+		return id, err
 	}
 	return id, nil
 }
@@ -80,8 +79,13 @@ func (r *queryResolver) Tasks(ctx context.Context) ([]*models.Task, error) {
 }
 
 // Task is the resolver for the task field.
-func (r *queryResolver) Task(ctx context.Context, id *primitive.ObjectID) (*models.Task, error) {
-	panic(fmt.Errorf("not implemented: Task - task"))
+func (r *queryResolver) Task(ctx context.Context, id primitive.ObjectID) (*models.Task, error) {
+	taskcollection := db.MongoDB.Database("golangTodos").Collection("tasks")
+	task, err := gql_controllers.GqlGetTask(ctx, taskcollection, id)
+	if err != nil {
+		return nil, err
+	}
+	return task, nil
 }
 
 // Mutation returns MutationResolver implementation.

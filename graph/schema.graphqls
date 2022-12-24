@@ -10,7 +10,7 @@ type Task {
 
 type Query {
   tasks: [Task!]!
-  task(_id: ID): Task!
+  task(_id: ID!): Task!
 }
 
 input NewTask {
