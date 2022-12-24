@@ -38,7 +38,23 @@ func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) 
 
 // UpdateTask is the resolver for the updateTask field.
 func (r *mutationResolver) UpdateTask(ctx context.Context, input model.UpdateTask) (*models.Task, error) {
-	panic(fmt.Errorf("not implemented: UpdateTask - updateTask"))
+	taskcollection := db.MongoDB.Database("golangTodos").Collection("tasks")
+	task := &models.Task{
+		ID:           input.ID,
+		Title:         input.Title,
+		Completed:     input.Completed,
+		UpdatedAt:    time.Now().Format(time.RFC3339),
+	}
+	err := gql_controllers.UpdateTask(ctx,taskcollection, task)
+	if err != nil {
+		return nil, err
+	}
+
+	updatedTask,err := gql_controllers.GqlGetTask(ctx, taskcollection, input.ID)
+	if err != nil {
+		return nil, err
+	}
+	return updatedTask, nil
 }
 
 // DeleteTask is the resolver for the deleteTask field.
