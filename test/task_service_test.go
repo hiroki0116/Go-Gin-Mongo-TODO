@@ -136,7 +136,9 @@ func TestGetTaskById(t *testing.T) {
 	}
 	unitTest.AddHeader("authorization", fmt.Sprintf("Bearer %s", tokenString))
 
-	if err := unitTest.TestHandlerUnMarshalResp(utils.GET, fmt.Sprintf("/api/v1/tasks/%v", tasks[0].ID.Hex()), "json", nil, &res); err != nil {
+	params := tasks[0].ID
+
+	if err := unitTest.TestHandlerUnMarshalResp(utils.GET, fmt.Sprintf("/api/v1/tasks/%v", tasks[0].ID.Hex()), "json", params, &res); err != nil {
 		t.Errorf("TestGetTaskById: %v/n", err)
 		return
 	}

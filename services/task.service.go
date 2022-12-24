@@ -37,9 +37,7 @@ func (ts *TaskService) GetTaskById(ctx *gin.Context) {
 		return
 	}
 
-	userId := utils.FetchUserFromCtx(ctx)
-
-	task, err := ts.TaskController.GetTaskById(taskId, userId)
+	task, err := ts.TaskController.GetTaskById(taskId)
 	if err != nil {
 		res := utils.NewHttpResponse(http.StatusBadRequest, err)
 		ctx.JSON(http.StatusBadRequest, res)
