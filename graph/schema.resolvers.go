@@ -40,7 +40,7 @@ func (r *mutationResolver) UpdateTask(ctx context.Context, input model.UpdateTas
 		Completed: input.Completed,
 		UpdatedAt: time.Now().Format(time.RFC3339),
 	}
-	task,err := r.TaskController.UpdateTask(input.ID, task)
+	_,err := r.TaskController.UpdateTask(input.ID, task)
 	if err != nil {
 		return nil, err
 	}
