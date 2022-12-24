@@ -21,7 +21,7 @@ type Task struct {
 }
 
 type UpdateTask struct {
-	ID        string `json:"_id"`
-	Title     string `json:"title"`
-	Completed bool   `json:"completed"`
+	ID        primitive.ObjectID `json:"_id"`
+	Title     string             `json:"title"`
+	Completed bool               `json:"completed"`
 }

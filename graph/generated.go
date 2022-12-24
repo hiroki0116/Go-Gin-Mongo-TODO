@@ -50,12 +50,12 @@ type DirectiveRoot struct {
 type ComplexityRoot struct {
 	Mutation struct {
 		CreateTask func(childComplexity int, input model.NewTask) int
-		DeleteTask func(childComplexity int, id string) int
+		DeleteTask func(childComplexity int, id primitive.ObjectID) int
 		UpdateTask func(childComplexity int, input model.UpdateTask) int
 	}
 
 	Query struct {
-		Task  func(childComplexity int, id *string) int
+		Task  func(childComplexity int, id *primitive.ObjectID) int
 		Tasks func(childComplexity int) int
 	}
 
@@ -73,11 +73,11 @@ type ComplexityRoot struct {
 type MutationResolver interface {
 	CreateTask(ctx context.Context, input model.NewTask) (*models.Task, error)
 	UpdateTask(ctx context.Context, input model.UpdateTask) (*models.Task, error)
-	DeleteTask(ctx context.Context, id string) (*models.Task, error)
+	DeleteTask(ctx context.Context, id primitive.ObjectID) (primitive.ObjectID, error)
 }
 type QueryResolver interface {
 	Tasks(ctx context.Context) ([]*models.Task, error)
-	Task(ctx context.Context, id *string) (*models.Task, error)
+	Task(ctx context.Context, id *primitive.ObjectID) (*models.Task, error)
 }
 
 type executableSchema struct {
@@ -117,7 +117,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteTask(childComplexity, args["_id"].(string)), true
+		return e.complexity.Mutation.DeleteTask(childComplexity, args["_id"].(primitive.ObjectID)), true
 
 	case "Mutation.updateTask":
 		if e.complexity.Mutation.UpdateTask == nil {
@@ -141,7 +141,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Task(childComplexity, args["_id"].(*string)), true
+		return e.complexity.Query.Task(childComplexity, args["_id"].(*primitive.ObjectID)), true
 
 	case "Query.tasks":
 		if e.complexity.Query.Tasks == nil {
@@ -306,10 +306,10 @@ func (ec *executionContext) field_Mutation_createTask_args(ctx context.Context, 
 func (ec *executionContext) field_Mutation_deleteTask_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 primitive.ObjectID
 	if tmp, ok := rawArgs["_id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("_id"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		arg0, err = ec.unmarshalNID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -351,10 +351,10 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 func (ec *executionContext) field_Query_task_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *string
+	var arg0 *primitive.ObjectID
 	if tmp, ok := rawArgs["_id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("_id"))
-		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		arg0, err = ec.unmarshalOID2ᚖgoᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -557,7 +557,7 @@ func (ec *executionContext) _Mutation_deleteTask(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteTask(rctx, fc.Args["_id"].(string))
+		return ec.resolvers.Mutation().DeleteTask(rctx, fc.Args["_id"].(primitive.ObjectID))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -569,9 +569,9 @@ func (ec *executionContext) _Mutation_deleteTask(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*models.Task)
+	res := resTmp.(primitive.ObjectID)
 	fc.Result = res
-	return ec.marshalNTask2ᚖgolangᚑnextjsᚑtodoᚋgraphᚋmodelᚐTask(ctx, field.Selections, res)
+	return ec.marshalNID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_deleteTask(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -581,23 +581,7 @@ func (ec *executionContext) fieldContext_Mutation_deleteTask(ctx context.Context
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "_id":
-				return ec.fieldContext_Task__id(ctx, field)
-			case "title":
-				return ec.fieldContext_Task_title(ctx, field)
-			case "completed":
-				return ec.fieldContext_Task_completed(ctx, field)
-			case "completed_date":
-				return ec.fieldContext_Task_completed_date(ctx, field)
-			case "created_at":
-				return ec.fieldContext_Task_created_at(ctx, field)
-			case "updated_at":
-				return ec.fieldContext_Task_updated_at(ctx, field)
-			case "user_id":
-				return ec.fieldContext_Task_user_id(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Task", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	defer func() {
@@ -688,7 +672,7 @@ func (ec *executionContext) _Query_task(ctx context.Context, field graphql.Colle
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Task(rctx, fc.Args["_id"].(*string))
+		return ec.resolvers.Query().Task(rctx, fc.Args["_id"].(*primitive.ObjectID))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3001,7 +2985,7 @@ func (ec *executionContext) unmarshalInputUpdateTask(ctx context.Context, obj in
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("_id"))
-			it.ID, err = ec.unmarshalNString2string(ctx, v)
+			it.ID, err = ec.unmarshalNID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -3957,6 +3941,22 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 		return graphql.Null
 	}
 	res := graphql.MarshalBoolean(*v)
+	return res
+}
+
+func (ec *executionContext) unmarshalOID2ᚖgoᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx context.Context, v interface{}) (*primitive.ObjectID, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := model1.UnmarshalObjectID(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOID2ᚖgoᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx context.Context, sel ast.SelectionSet, v *primitive.ObjectID) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := model1.MarshalObjectID(*v)
 	return res
 }
 

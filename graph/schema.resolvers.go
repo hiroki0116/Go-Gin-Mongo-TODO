@@ -7,17 +7,33 @@ package graph
 import (
 	"context"
 	"fmt"
+	"time"
 	"golang-nextjs-todo/db"
 	"golang-nextjs-todo/graph/gql_controllers"
 	"golang-nextjs-todo/graph/model"
 	"golang-nextjs-todo/models"
 
+
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// CreateTask is the resolver for the createTask field.
 func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) (*models.Task, error) {
-	panic(fmt.Errorf("not implemented: CreateTask - createTask"))
+	taskcollection := db.MongoDB.Database("golangTodos").Collection("tasks")
+	id := ctx.Value("id")
+	userId := id.(primitive.ObjectID)
+	task := &models.Task{
+		Title:         input.Title,
+		Completed:     false,
+		CompletedDate: "",
+		CreatedAt:     time.Now().Format(time.RFC3339),
+		UpdatedAt:     time.Now().Format(time.RFC3339),
+		UserID:        userId,
+	}
+	task, err := gql_controllers.CreateTask(ctx, taskcollection, task)
+	if err != nil {
+		return nil, err
+	}
+	return task, nil
 }
 
 // UpdateTask is the resolver for the updateTask field.
@@ -26,8 +42,13 @@ func (r *mutationResolver) UpdateTask(ctx context.Context, input model.UpdateTas
 }
 
 // DeleteTask is the resolver for the deleteTask field.
-func (r *mutationResolver) DeleteTask(ctx context.Context, id string) (*models.Task, error) {
-	panic(fmt.Errorf("not implemented: DeleteTask - deleteTask"))
+func (r *mutationResolver) DeleteTask(ctx context.Context, id primitive.ObjectID) (primitive.ObjectID, error) {
+	taskcollection := db.MongoDB.Database("golangTodos").Collection("tasks")
+	err := gql_controllers.DeleteTask(ctx, taskcollection, id)
+	if err != nil {
+		return id,err
+	}
+	return id, nil
 }
 
 // Tasks is the resolver for the tasks field.
@@ -43,7 +64,7 @@ func (r *queryResolver) Tasks(ctx context.Context) ([]*models.Task, error) {
 }
 
 // Task is the resolver for the task field.
-func (r *queryResolver) Task(ctx context.Context, id *string) (*models.Task, error) {
+func (r *queryResolver) Task(ctx context.Context, id *primitive.ObjectID) (*models.Task, error) {
 	panic(fmt.Errorf("not implemented: Task - task"))
 }
 
