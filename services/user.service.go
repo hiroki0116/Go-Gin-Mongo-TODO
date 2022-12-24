@@ -121,7 +121,12 @@ func (us *UserService) SignUp(ctx *gin.Context) {
 		LastName:  user.LastName,
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
+		Token:     tokenString,
 	}
+
+	ctx.SetSameSite(http.SameSiteLaxMode)
+	// Set it in cookie
+	ctx.SetCookie("token", tokenString, 3600*24*30, "/", "*", false, false)
 
 	// Return response
 	res := utils.NewHttpResponse(http.StatusCreated, resUser)

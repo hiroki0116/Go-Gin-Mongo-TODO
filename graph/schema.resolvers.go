@@ -6,12 +6,89 @@ package graph
 
 import (
 	"context"
+	"fmt"
+	"os"
+	"time"
 	"golang-nextjs-todo/graph/model"
 	"golang-nextjs-todo/models"
-	"time"
+	"golang-nextjs-todo/utils"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"golang.org/x/crypto/bcrypt"
+	"github.com/golang-jwt/jwt"
 )
+
+// Signup is the resolver for the signup field.
+func (r *mutationResolver) Signup(ctx context.Context, inpuit model.SignupInput) (*models.User, error) {
+	user := &models.User{
+		FirstName: inpuit.FirstName,
+		LastName:  inpuit.LastName,
+		Email:     inpuit.Email,
+		Password:  inpuit.Password,
+		CreatedAt: time.Now().Format(time.RFC3339),
+		UpdatedAt: time.Now().Format(time.RFC3339),
+	}
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
+	if err != nil {
+		return nil, err
+	}
+	user.Password = string(hash)
+
+	if _,err := r.UserController.GetUserByEmail(user.Email); err == nil {
+		return nil, fmt.Errorf("user already exists")
+	}
+
+	userId, err := r.UserController.CreateUser(user)
+	if err != nil {
+		return nil, err
+	}
+
+	// Generate jwt token
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"sub": userId,
+		"exp": time.Now().Add(time.Hour * 24 * 30).Unix(),
+	})
+	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+	if err != nil {
+		return nil, err
+	}
+	user.Token = tokenString
+
+	return user, nil
+}
+
+// Login is the resolver for the login field.
+func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*models.User, error) {
+	user, err := r.UserController.GetUserByEmail(input.Email)
+	if err != nil {
+		return nil, fmt.Errorf("this email is not registered")
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password))
+	if err != nil {
+		return nil, err
+	}
+
+	// Generate jwt token
+	tokenString, err := utils.GenerateJWTToken(user.ID)
+	if err != nil {
+		return nil, err
+	}
+	user.Token = tokenString
+
+	return user, nil
+}
+
+// UpdateUser is the resolver for the updateUser field.
+func (r *mutationResolver) UpdateUser(ctx context.Context, input model.UpdateUser) (*models.User, error) {
+	panic(fmt.Errorf("not implemented: UpdateUser - updateUser"))
+}
+
+// DeleteUser is the resolver for the deleteUser field.
+func (r *mutationResolver) DeleteUser(ctx context.Context, id primitive.ObjectID) (primitive.ObjectID, error) {
+	panic(fmt.Errorf("not implemented: DeleteUser - deleteUser"))
+}
 
 // CreateTask is the resolver for the createTask field.
 func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) (*models.Task, error) {
@@ -40,7 +117,7 @@ func (r *mutationResolver) UpdateTask(ctx context.Context, input model.UpdateTas
 		Completed: input.Completed,
 		UpdatedAt: time.Now().Format(time.RFC3339),
 	}
-	_,err := r.TaskController.UpdateTask(input.ID, task)
+	_, err := r.TaskController.UpdateTask(input.ID, task)
 	if err != nil {
 		return nil, err
 	}
@@ -59,6 +136,24 @@ func (r *mutationResolver) DeleteTask(ctx context.Context, id primitive.ObjectID
 		return id, err
 	}
 	return id, nil
+}
+
+// Users is the resolver for the users field.
+func (r *queryResolver) Users(ctx context.Context) ([]*models.User, error) {
+	users, err := r.UserController.GetAllUsers()
+	if err != nil {
+		return  []*models.User{}, err
+	}
+	return users, nil
+}
+
+// User is the resolver for the user field.
+func (r *queryResolver) User(ctx context.Context, id primitive.ObjectID) (*models.User, error) {
+	user, err := r.UserController.GetUserById(id)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
 }
 
 // Tasks is the resolver for the tasks field.
