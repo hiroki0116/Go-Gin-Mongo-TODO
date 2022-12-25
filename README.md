@@ -1,6 +1,6 @@
 ## TaskGO
 
-This is super simple task manager app. You can keep track of your daily tasks easily. This was developed to learn Golang with Gin framework.
+This is super simple task manager app with authentication. You can keep track of your daily tasks easily. This was developed to learn Golang with Gin framework.
 
 ## Production Site 
 
