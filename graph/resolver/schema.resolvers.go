@@ -12,6 +12,7 @@ import (
 	"golang-nextjs-todo/graph/model"
 	"golang-nextjs-todo/models"
 	"golang-nextjs-todo/utils"
+	generated1 "golang-nextjs-todo/graph/generated"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
@@ -177,10 +178,10 @@ func (r *queryResolver) Task(ctx context.Context, id primitive.ObjectID) (*model
 }
 
 // Mutation returns MutationResolver implementation.
-func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
+func (r *Resolver) Mutation() generated1.MutationResolver { return &mutationResolver{r} }
 
 // Query returns QueryResolver implementation.
-func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
+func (r *Resolver) Query() generated1.QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }

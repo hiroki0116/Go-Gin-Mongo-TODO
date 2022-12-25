@@ -5,12 +5,11 @@ package graph
 import (
 	"bytes"
 	"context"
-	"embed"
 	"errors"
 	"fmt"
 	"golang-nextjs-todo/graph/model"
-	"golang-nextjs-todo/models"
 	model1 "golang-nextjs-todo/graph/scalar"
+	"golang-nextjs-todo/models"
 	"strconv"
 	"sync"
 	"sync/atomic"
@@ -53,7 +52,7 @@ type ComplexityRoot struct {
 		DeleteTask func(childComplexity int, id primitive.ObjectID) int
 		DeleteUser func(childComplexity int, id primitive.ObjectID) int
 		Login      func(childComplexity int, input model.LoginInput) int
-		Signup     func(childComplexity int, inpuit model.SignupInput) int
+		Signup     func(childComplexity int, input model.SignupInput) int
 		UpdateTask func(childComplexity int, input model.UpdateTask) int
 		UpdateUser func(childComplexity int, input model.UpdateUser) int
 	}
@@ -88,7 +87,7 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	Signup(ctx context.Context, inpuit model.SignupInput) (*models.User, error)
+	Signup(ctx context.Context, input model.SignupInput) (*models.User, error)
 	Login(ctx context.Context, input model.LoginInput) (*models.User, error)
 	UpdateUser(ctx context.Context, input model.UpdateUser) (*models.User, error)
 	DeleteUser(ctx context.Context, id primitive.ObjectID) (primitive.ObjectID, error)
@@ -176,7 +175,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.Signup(childComplexity, args["inpuit"].(model.SignupInput)), true
+		return e.complexity.Mutation.Signup(childComplexity, args["input"].(model.SignupInput)), true
 
 	case "Mutation.updateTask":
 		if e.complexity.Mutation.UpdateTask == nil {
@@ -417,19 +416,74 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 	return introspection.WrapTypeFromDef(parsedSchema, parsedSchema.Types[name]), nil
 }
 
-//go:embed "schema.graphqls"
-var sourcesFS embed.FS
-
-func sourceData(filename string) string {
-	data, err := sourcesFS.ReadFile(filename)
-	if err != nil {
-		panic(fmt.Sprintf("codegen problem: %s not available", filename))
-	}
-	return string(data)
+var sources = []*ast.Source{
+	{Name: "../schema/schema.graphqls", Input: `type Query {
+  users: [User!]!
+  user(_id: ID!): User!
+  tasks: [Task!]!
+  task(_id: ID!): Task!
 }
 
-var sources = []*ast.Source{
-	{Name: "schema.graphqls", Input: sourceData("schema.graphqls"), BuiltIn: false},
+type Mutation {
+  signup(input: SignupInput!): User!
+  login(input: LoginInput!): User!
+  updateUser(input: UpdateUser!): User!
+  deleteUser(_id: ID!): ID!
+  createTask(input: NewTask!): Task!
+  updateTask(input: UpdateTask!): Task!
+  deleteTask(_id: ID!): ID!
+}
+`, BuiltIn: false},
+	{Name: "../schema/task.graphqls", Input: `type Task {
+  _id: ID!
+  title: String!
+  completed: Boolean!
+  completed_date: String!
+  created_at: String!
+  updated_at: String!
+  user_id: ID!
+}
+
+input NewTask {
+  title: String!
+}
+
+input UpdateTask {
+  _id: ID!
+  title: String!
+  completed: Boolean!
+}
+`, BuiltIn: false},
+	{Name: "../schema/user.graphqls", Input: `type User {
+  _id: ID!
+  first_name: String!
+  last_name: String!
+  email: String!
+  password: String!
+  created_at: String!
+  updated_at: String!
+  token: String!
+}
+
+input SignupInput {
+  first_name: String!
+  last_name: String!
+  email: String!
+  password: String!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+input UpdateUser {
+  _id: ID!
+  email: String!
+  first_name: String!
+  last_name: String!
+}
+`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
@@ -501,14 +555,14 @@ func (ec *executionContext) field_Mutation_signup_args(ctx context.Context, rawA
 	var err error
 	args := map[string]interface{}{}
 	var arg0 model.SignupInput
-	if tmp, ok := rawArgs["inpuit"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("inpuit"))
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNSignupInput2golangᚑnextjsᚑtodoᚋgraphᚋmodelᚐSignupInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["inpuit"] = arg0
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -639,7 +693,7 @@ func (ec *executionContext) _Mutation_signup(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().Signup(rctx, fc.Args["inpuit"].(model.SignupInput))
+		return ec.resolvers.Mutation().Signup(rctx, fc.Args["input"].(model.SignupInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)

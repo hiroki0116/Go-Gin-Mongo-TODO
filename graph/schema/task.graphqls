@@ -1,0 +1,19 @@
+type Task {
+  _id: ID!
+  title: String!
+  completed: Boolean!
+  completed_date: String!
+  created_at: String!
+  updated_at: String!
+  user_id: ID!
+}
+
+input NewTask {
+  title: String!
+}
+
+input UpdateTask {
+  _id: ID!
+  title: String!
+  completed: Boolean!
+}

@@ -4,7 +4,8 @@ import (
 	"context"
 	"golang-nextjs-todo/controllers"
 	"golang-nextjs-todo/db"
-	"golang-nextjs-todo/graph"
+	graph "golang-nextjs-todo/graph/generated"
+	graph1 "golang-nextjs-todo/graph/resolver"
 	"golang-nextjs-todo/middleware"
 	"golang-nextjs-todo/routes"
 	"golang-nextjs-todo/services"
@@ -78,7 +79,7 @@ func init() {
 func graphqlHandler() gin.HandlerFunc {
 	// NewExecutableSchema and Config are in the generated.go file
 	// Resolver is in the resolver.go file
-	h := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{TaskController: taskcontroller, UserController: usercontroller}}))
+	h := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph1.Resolver{TaskController: taskcontroller, UserController: usercontroller}}))
 
 	return func(c *gin.Context) {
 		h.ServeHTTP(c.Writer, c.Request)
