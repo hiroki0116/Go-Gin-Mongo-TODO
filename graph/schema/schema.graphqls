@@ -1,0 +1,16 @@
+type Query {
+  users: [User!]!
+  user(_id: ID!): User!
+  tasks: [Task!]!
+  task(_id: ID!): Task!
+}
+
+type Mutation {
+  signup(input: SignupInput!): User!
+  login(input: LoginInput!): User!
+  updateUser(input: UpdateUser!): User!
+  deleteUser(_id: ID!): ID!
+  createTask(input: NewTask!): Task!
+  updateTask(input: UpdateTask!): Task!
+  deleteTask(_id: ID!): ID!
+}
