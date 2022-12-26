@@ -3,7 +3,7 @@ package test
 import (
 	"context"
 	"fmt"
-	"golang-nextjs-todo/models"
+	"golang-nextjs-todo/internals/models"
 	"log"
 	"time"
 

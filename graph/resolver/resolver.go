@@ -1,6 +1,6 @@
 package graph
 
-import "golang-nextjs-todo/controllers"
+import "golang-nextjs-todo/internals/controllers"
 
 // This file will not be regenerated automatically.
 //

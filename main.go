@@ -2,13 +2,13 @@ package main
 
 import (
 	"context"
-	"golang-nextjs-todo/controllers"
-	"golang-nextjs-todo/db"
 	graph "golang-nextjs-todo/graph/generated"
 	graph1 "golang-nextjs-todo/graph/resolver"
-	"golang-nextjs-todo/middleware"
-	"golang-nextjs-todo/routes"
-	"golang-nextjs-todo/services"
+	"golang-nextjs-todo/internals/controllers"
+	"golang-nextjs-todo/internals/db"
+	"golang-nextjs-todo/internals/middleware"
+	"golang-nextjs-todo/internals/routes"
+	"golang-nextjs-todo/internals/services"
 	"log"
 	"os"
 	"time"
