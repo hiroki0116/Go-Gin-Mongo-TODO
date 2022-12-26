@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"golang-nextjs-todo/graph/model"
 	model1 "golang-nextjs-todo/graph/scalar"
-	"golang-nextjs-todo/models"
+	"golang-nextjs-todo/internals/models"
 	"strconv"
 	"sync"
 	"sync/atomic"

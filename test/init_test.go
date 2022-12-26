@@ -2,11 +2,11 @@ package test
 
 import (
 	"context"
-	"golang-nextjs-todo/controllers"
-	"golang-nextjs-todo/db"
-	"golang-nextjs-todo/middleware"
-	"golang-nextjs-todo/routes"
-	"golang-nextjs-todo/services"
+	"golang-nextjs-todo/internals/controllers"
+	"golang-nextjs-todo/internals/db"
+	"golang-nextjs-todo/internals/middleware"
+	"golang-nextjs-todo/internals/routes"
+	"golang-nextjs-todo/internals/services"
 	"log"
 	"os"
 	"testing"

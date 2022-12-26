@@ -10,8 +10,8 @@ import (
 	"os"
 	"time"
 	"golang-nextjs-todo/graph/model"
-	"golang-nextjs-todo/models"
-	"golang-nextjs-todo/utils"
+	"golang-nextjs-todo/internals/models"
+	"golang-nextjs-todo/internals/utils"
 	generated1 "golang-nextjs-todo/graph/generated"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"

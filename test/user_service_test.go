@@ -2,8 +2,8 @@ package test
 
 import (
 	"fmt"
-	"golang-nextjs-todo/models"
-	util "golang-nextjs-todo/utils"
+	"golang-nextjs-todo/internals/models"
+	util "golang-nextjs-todo/internals/utils"
 	"log"
 	"testing"
 
